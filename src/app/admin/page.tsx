@@ -1,108 +1,241 @@
 "use client";
 
-import { trpc } from "~/trpc/react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { trpc } from "~/trpc/react";
+import Link from "next/link";
+import Navbar from "../components/Navbar";
 
-export default function AdminPage() {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [name, setName] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+// Definição de tipos para garantir segurança
+type PostForm = {
+  title: string;
+  content: string;
+  name: string;
+  imageUrl?: string;
+  categoryId?: string;
+};
 
-  const router = useRouter();
+type PostUpdate = PostForm & { id: string };
 
-  const { mutateAsync } = trpc.post.create.useMutation({
-    onSuccess: (data) => {
-      console.log("Novo post criado com sucesso:", data);
-      router.push("/"); // Redireciona para a página principal após sucesso
+export default function AdminPosts() {
+  const [editingPost, setEditingPost] = useState<{ id: string } | null>(null);
+  const [form, setForm] = useState<PostForm>({
+    title: "",
+    content: "",
+    name: "",
+    categoryId: "",
+  });
+  const [image, setImage] = useState<File | null>(null);
+
+  // Categorias fixas
+  const categories = [
+    { id: "novidades", name: "Novidades" },
+    { id: "novos-projetos", name: "Novos Projetos" },
+    { id: "blog", name: "Blog" },
+  ];
+
+  // Fetch posts
+  const { data: posts, refetch } = trpc.post.all.useQuery();
+  const createPost = trpc.post.create.useMutation({
+    onSuccess: () => {
+      refetch();
     },
-    onError: (err) => {
-      setError(err.message);
-      setIsLoading(false);
+  });
+  const updatePost = trpc.post.create.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+  const deletePost = trpc.post.create.useMutation({
+    onSuccess: () => {
+      refetch();
     },
   });
 
+  // Handle input changes
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  // Handle image selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
+    }
+  };
+
+  // Handle create or update
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title || !content || !name) {
-      setError("Todos os campos são obrigatórios!");
-      return;
+    let imageUrl = form.imageUrl || "";
+    if (image) {
+      const formData = new FormData();
+      formData.append("file", image);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      imageUrl = data.imageUrl;
     }
 
-    setIsLoading(true);
-    try {
-      await mutateAsync({ title, content, name });
-    } catch (err) {
-      setError("Erro ao criar o post. Tente novamente.");
+    if (editingPost) {
+      await updatePost.mutateAsync({
+        id: editingPost.id,
+        ...form,
+        imageUrl,
+      } as PostUpdate);
+      setEditingPost(null);
+    } else {
+      await createPost.mutateAsync({ ...form, imageUrl });
+    }
+
+    setForm({ title: "", content: "", name: "", categoryId: "" });
+    setImage(null);
+  };
+
+  // Handle edit
+  const handleEdit = (post: any) => {
+    setEditingPost({ id: post.id });
+    setForm({
+      title: post.title,
+      content: post.content,
+      name: post.name,
+      categoryId: post.categoryId || "",
+      imageUrl: post.imageUrl || "",
+    });
+  };
+
+  // Handle delete
+  const handleDelete = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir?")) {
+      const deletePost = trpc.post.delete.useMutation({
+        onSuccess: () => {
+          refetch();
+        },
+      });
     }
   };
 
   return (
-    <div className="mx-auto max-w-2xl p-6">
-      <h1 className="mb-6 text-center text-3xl font-semibold text-gray-800">
-        Painel de Administração
-      </h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="title" className="block text-lg">
-            Título do Post
-          </label>
+    <div>
+      <Navbar />
+      <div className="mx-auto max-w-4xl p-6">
+        <h1 className="mb-4 text-2xl font-bold">Gerenciar Posts</h1>
+
+        {/* Formulário */}
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 p-3"
-            placeholder="Digite o título do post"
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            placeholder="Título"
+            className="w-full rounded border p-2"
             required
           />
-        </div>
-
-        <div>
-          <label htmlFor="content" className="block text-lg">
-            Conteúdo do Post
-          </label>
           <textarea
-            id="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 p-3"
-            placeholder="Digite o conteúdo do post"
-            rows={6}
+            name="content"
+            value={form.content}
+            onChange={handleChange}
+            placeholder="Conteúdo"
+            className="w-full rounded border p-2"
             required
           />
-        </div>
-
-        <div>
-          <label htmlFor="name" className="block text-lg">
-            Nome do Autor
-          </label>
           <input
             type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 p-3"
-            placeholder="Digite o nome do autor"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Autor"
+            className="w-full rounded border p-2"
             required
           />
-        </div>
 
-        {error && <p className="text-red-500">{error}</p>}
+          {/* Seleção de categoria */}
+          <select
+            name="categoryId"
+            value={form.categoryId}
+            onChange={handleChange}
+            className="w-full rounded border p-2"
+            required
+          >
+            <option value="">Selecione uma categoria</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
 
-        <div className="text-center">
+          {/* Upload de imagem */}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="w-full rounded border p-2"
+          />
+          {image && <p>Imagem selecionada: {image.name}</p>}
+
           <button
             type="submit"
-            className={`rounded-lg bg-blue-600 px-4 py-2 text-white ${isLoading ? "cursor-not-allowed opacity-50" : ""}`}
-            disabled={isLoading}
+            className="rounded bg-blue-500 px-4 py-2 text-white"
           >
-            {isLoading ? "Criando..." : "Criar Post"}
+            {editingPost ? "Atualizar" : "Criar"} Post
           </button>
+        </form>
+
+        {/* Lista de posts */}
+        <div className="mt-6">
+          <h2 className="mb-2 text-xl font-semibold">Posts Criados</h2>
+          {posts?.map((post) => (
+            <div
+              key={post.id}
+              className="mb-2 flex justify-between rounded border p-4"
+            >
+              <div>
+                {post.imageUrl && (
+                  <img
+                    src={post.imageUrl}
+                    alt={post.title}
+                    className="h-24 w-24 rounded object-cover"
+                  />
+                )}
+                <h3 className="text-lg font-bold">{post.title}</h3>
+                <p className="text-sm text-gray-600">Por {post.name}</p>
+                <p className="text-sm text-gray-600">
+                  Categoria:{" "}
+                  {categories.find((c) => c.id === post.categoryId)?.name ||
+                    "Sem categoria"}
+                </p>
+                <Link href={`/post/${post.slug}`} className="text-blue-600">
+                  Ver Post
+                </Link>
+              </div>
+              <div>
+                <button
+                  onClick={() => handleEdit(post)}
+                  className="mr-2 text-yellow-500"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => handleDelete(post.id)}
+                  className="text-red-500"
+                >
+                  Excluir
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-      </form>
+      </div>
     </div>
   );
 }
