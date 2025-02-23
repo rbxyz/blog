@@ -16,13 +16,6 @@ model Post {
   imageUrl   String?
   viewCount  Int      @default(0)
   createdAt  DateTime  @default(now())
-  categoryId  String?
-  category   Category? @relation(fields: [categoryId], references: [id])
 }
 
-model Category {
-  id    String  @id @default(uuid())
-  name  String
-  posts Post[]
-}
 

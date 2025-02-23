@@ -53,19 +53,6 @@ export default async function PostPage({
               : "Data não disponível"}
           </span>
         </div>
-        {post.category ? (
-          <div className="mt-4">
-            <span className="font-semibold">Categoria:</span>
-            <a
-              href={`/categoria/${post.category.id}`} // ✅ Agora "id" existe
-              className="ml-2 rounded bg-gray-200 px-3 py-1 hover:bg-gray-300"
-            >
-              {post.category.name}
-            </a>
-          </div>
-        ) : (
-          <p className="mt-4 text-gray-500">Sem categoria</p>
-        )}
       </div>
     </div>
   );
