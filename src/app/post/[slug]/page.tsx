@@ -5,7 +5,12 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 
-// ✅ Define a função `generateStaticParams` corretamente
+// ✅ Define corretamente os parâmetros da página
+interface PostPageProps {
+  params: { slug?: string }; // 🔹 Permite que `slug` seja opcional para evitar erro
+}
+
+// ✅ Garante que `generateStaticParams` está correto
 export async function generateStaticParams() {
   const posts = await prisma.post.findMany({
     select: { slug: true },
@@ -14,11 +19,6 @@ export async function generateStaticParams() {
   return posts.map((post) => ({
     slug: post.slug, // 🔹 Garante que `slug` é sempre uma string válida
   }));
-}
-
-// ✅ Define corretamente os parâmetros da página
-interface PostPageProps {
-  params: { slug: string };
 }
 
 export default async function PostPage({ params }: PostPageProps) {
