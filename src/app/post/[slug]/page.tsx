@@ -5,12 +5,23 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 
-interface PostPageProps {
-  params?: { slug?: string }; // 🔹 Permite `params` ser opcional para evitar erro
+// 🔹 Função para gerar os parâmetros estáticos
+export async function generateStaticParams() {
+  const posts = await prisma.post.findMany({
+    select: { slug: true },
+  });
+
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
 }
 
-export default async function PostPage({ params }: PostPageProps) {
-  if (!params?.slug) return notFound(); // 🔹 Garante que `slug` esteja presente
+export default async function PostPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  if (!params || !params.slug) return notFound();
 
   const post = await prisma.post.findUnique({
     where: { slug: params.slug },
