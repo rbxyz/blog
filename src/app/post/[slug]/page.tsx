@@ -12,12 +12,15 @@ export async function generateStaticParams() {
   return posts.map((post) => ({ slug: post.slug }));
 }
 
-export default async function PostPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const { slug } = params ?? {};
+// 🔹 Tipagem correta para `params`
+interface PostPageProps {
+  params: {
+    slug?: string;
+  };
+}
+
+export default async function PostPage({ params }: PostPageProps) {
+  const slug = params.slug;
   if (!slug) return notFound();
 
   const post = await prisma.post.findUnique({
