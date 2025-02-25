@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 
-// 🔹 Função para gerar os parâmetros estáticos
+// 🔹 Garante que o Next.js gere os slugs corretamente
 export async function generateStaticParams() {
   const posts = await prisma.post.findMany({
     select: { slug: true },
@@ -16,12 +16,13 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function PostPage({
-  params,
-}: {
+// 🔹 Tipagem correta para `params`
+interface PostPageProps {
   params: { slug: string };
-}) {
-  if (!params || !params.slug) return notFound();
+}
+
+export default async function PostPage({ params }: PostPageProps) {
+  if (!params?.slug) return notFound();
 
   const post = await prisma.post.findUnique({
     where: { slug: params.slug },
@@ -29,8 +30,10 @@ export default async function PostPage({
 
   if (!post) return notFound();
 
-  console.log("Conteúdo armazenado no banco de dados:", post.content);
-
+  if (!params || !params.slug) {
+    console.error("❌ Erro: Nenhum slug encontrado nos parâmetros da página.");
+    return notFound();
+  }
   return (
     <div>
       <Navbar />
