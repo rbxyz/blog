@@ -32,7 +32,6 @@ export default function HomePage() {
   if (error) return <p>Erro ao carregar posts: {error.message}</p>;
   
   */
-  const [showPosts, setShowPosts] = useState(true); // Estado de visibilidade
 
   return (
     <div>
@@ -50,40 +49,31 @@ export default function HomePage() {
             <h1 className="text-3xl font-semibold text-gray-800">
               Últimas postagens
             </h1>
-            <button
-              onClick={() => setShowPosts(!showPosts)}
-              className="rounded-full p-2 transition hover:bg-gray-200"
-              aria-label="Alternar visibilidade"
-            >
-              {showPosts ? <Eye size={24} /> : <EyeOff size={24} />}
-            </button>
           </div>
 
-          {showPosts && (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {recentPosts?.map((post: Post) => (
-                <Link
-                  key={post.id}
-                  href={`/post/${post.slug}`}
-                  className="block rounded border p-3 hover:bg-gray-100"
-                >
-                  {post.imageUrl && (
-                    <img
-                      src={post.imageUrl}
-                      alt={post.title}
-                      className="mb-2 h-40 w-full rounded-md object-cover"
-                    />
-                  )}
-                  <h3 className="font-semibold text-blue-600 hover:underline">
-                    {post.title}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {post.content?.slice(0, 100)}...
-                  </p>
-                </Link>
-              ))}
-            </div>
-          )}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {recentPosts?.map((post: Post) => (
+              <Link
+                key={post.id}
+                href={`/post/${post.slug}`}
+                className="block rounded border p-3 hover:bg-gray-100"
+              >
+                {post.imageUrl && (
+                  <img
+                    src={post.imageUrl}
+                    alt={post.title}
+                    className="mb-2 h-40 w-full rounded-md object-cover"
+                  />
+                )}
+                <h3 className="font-semibold text-blue-600 hover:underline">
+                  {post.title}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {post.content?.slice(0, 100)}...
+                </p>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>

@@ -22,7 +22,7 @@ export default function SearchPosts() {
       {isLoading && <p>Buscando...</p>}
       {results && (
         <ul className="mt-4 space-y-2">
-          {results.map((post) => (
+          {results.map((post: { id: string; title: string }) => (
             <li key={post.id} className="rounded bg-gray-100 p-2">
               {post.title}
             </li>

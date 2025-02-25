@@ -1,58 +1,53 @@
 import { prisma } from "~/server/db";
+import { notFound } from "next/navigation";
 import Navbar from "~/app/components/Navbar";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeSanitize from "rehype-sanitize"; // Adicionado para sanitização contra XSS
 
-// Função para gerar os parâmetros estáticos (geração de páginas dinâmicas)
 export async function generateStaticParams() {
-  // Busca todos os posts, selecionando apenas o campo slug
   const posts = await prisma.post.findMany({
     select: { slug: true },
   });
-
   return posts.map((post) => ({ slug: post.slug }));
 }
 
-// Componente para a página de post
 export default async function PostPage({
   params,
 }: {
   params: { slug: string };
 }) {
-  if (!params?.slug) {
-    return <p>Slug não encontrado!</p>;
-  }
+  const { slug } = params ?? {};
+  if (!slug) return notFound();
 
   const post = await prisma.post.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
   });
+  if (!post) return notFound();
 
-  if (!post) {
-    return <p>Post não encontrado!</p>;
-  }
+  console.log("Conteúdo armazenado no banco de dados:", post.content);
 
   return (
     <div>
       <Navbar />
       <div className="mx-auto max-w-4xl p-4">
+        <h1 className="mb-4 text-3xl font-bold">{post.title}</h1>
         {post.imageUrl && (
           <img
             src={post.imageUrl}
             alt={post.title}
-            className="mb-6 h-[720px] w-full rounded-lg object-cover"
+            className="mb-4 w-full rounded-lg object-cover"
+            style={{ height: "360px" }}
           />
         )}
-        <h1 className="mb-4 text-3xl font-semibold text-gray-800">
-          {post.title}
-        </h1>
-        <p className="text-gray-600">{post.content}</p>
-        <div className="mt-4 flex justify-between text-sm text-gray-500">
-          <span>Autor: {post.name}</span>
-          <span>
-            Data:{" "}
-            {post.createdAt
-              ? new Date(post.createdAt).toLocaleDateString()
-              : "Data não disponível"}
-          </span>
-        </div>
+        <article className="prose prose-lg dark:prose-invert max-w-none">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeSanitize]}
+          >
+            {post.content}
+          </ReactMarkdown>
+        </article>
       </div>
     </div>
   );

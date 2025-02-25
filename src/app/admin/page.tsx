@@ -1,10 +1,16 @@
 "use client";
 
-import type React from "react";
-import { useState } from "react";
+import * as React from "react";
+import { ChangeEvent, useState } from "react";
+import dynamic from "next/dynamic";
 import { trpc } from "~/trpc/react";
-import Link from "next/link";
 import Navbar from "../components/Navbar";
+import { useAuth, useUser } from "@clerk/nextjs";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
+import Link from "next/link";
+
+const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
 type PostForm = {
   title: string;
@@ -13,22 +19,30 @@ type PostForm = {
   imageUrl?: string;
 };
 
+interface Post {
+  id: string;
+  title: string;
+  content: string;
+  name: string;
+  imageUrl?: string;
+  slug: string;
+}
+
 type PostUpdate = PostForm & { id: string };
 
 export default function AdminPosts() {
+  const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
+
+  const ALLOWED_EMAIL = process.env.NEXT_PUBLIC_ALLOWED_EMAIL;
+
   const [editingPost, setEditingPost] = useState<{ id: string } | null>(null);
   const [form, setForm] = useState<PostForm>({
     title: "",
     content: "",
-    name: "",
+    name: "Ruan | D3v",
   });
   const [image, setImage] = useState<File | null>(null);
-
-  const categories = [
-    { id: "novidades", name: "Novidades" },
-    { id: "novos-projetos", name: "Novos Projetos" },
-    { id: "blog", name: "Blog" },
-  ];
 
   const { data: posts, refetch } = trpc.post.all.useQuery();
   const createPostMutation = trpc.post.create.useMutation({
@@ -42,15 +56,13 @@ export default function AdminPosts() {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm((prevForm) => ({ ...prevForm, [e.target.name]: e.target.value }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
       setImage(e.target.files[0]);
     }
   };
@@ -62,12 +74,10 @@ export default function AdminPosts() {
     if (image) {
       const formData = new FormData();
       formData.append("file", image);
-
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
-
       const data = await res.json();
       imageUrl = data.imageUrl;
     }
@@ -103,6 +113,29 @@ export default function AdminPosts() {
     }
   };
 
+  const handleContentChange = (value?: string) => {
+    setForm((prevForm) => ({
+      ...prevForm,
+      content: value ?? "",
+    }));
+  };
+  // 🔹 Aguarda o carregamento antes de qualquer verificação
+  if (!isLoaded)
+    return <p className="text-center text-gray-500">Carregando...</p>;
+
+  console.log("Email permitido:", process.env.NEXT_PUBLIC_ALLOWED_EMAIL);
+  console.log(
+    "Email do usuário logado:",
+    user?.primaryEmailAddress?.emailAddress,
+  );
+
+  if (
+    !isSignedIn ||
+    !user ||
+    user.primaryEmailAddress?.emailAddress !== ALLOWED_EMAIL
+  ) {
+    return <p className="text-lg text-red-500">Acesso negado.</p>;
+  }
   return (
     <div>
       <Navbar />
@@ -119,32 +152,14 @@ export default function AdminPosts() {
             className="w-full rounded border p-2"
             required
           />
-          <textarea
-            name="content"
+          <MDEditor
             value={form.content}
-            onChange={handleChange}
-            placeholder="Conteúdo"
-            className="w-full rounded border p-2"
-            required
+            onChange={handleContentChange}
+            height={600}
+            previewOptions={{
+              remarkPlugins: [remarkGfm, remarkBreaks],
+            }}
           />
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Autor"
-            className="w-full rounded border p-2"
-            required
-          />
-
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="w-full rounded border p-2"
-          />
-          {image && <p>Imagem selecionada: {image.name}</p>}
-
           <button
             type="submit"
             className="rounded bg-blue-500 px-4 py-2 text-white"
@@ -152,45 +167,47 @@ export default function AdminPosts() {
             {editingPost ? "Atualizar" : "Criar"} Post
           </button>
         </form>
+      </div>
 
-        <div className="mt-6">
-          <h2 className="mb-2 text-xl font-semibold">Posts Criados</h2>
-          {posts?.map((post) => (
-            <div
-              key={post.id}
-              className="mb-2 flex justify-between rounded border p-4"
-            >
-              <div>
-                {post.imageUrl && (
-                  <img
-                    src={post.imageUrl || "/placeholder.svg"}
-                    alt={post.title}
-                    className="h-24 w-24 rounded object-cover"
-                  />
-                )}
-                <h3 className="text-lg font-bold">{post.title}</h3>
-                <p className="text-sm text-gray-600">Por {post.name}</p>
-                <Link href={`/post/${post.slug}`} className="text-blue-600">
-                  Ver Post
-                </Link>
-              </div>
-              <div>
-                <button
-                  onClick={() => handleEdit(post)}
-                  className="mr-2 text-yellow-500"
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => handleDelete(post.id)}
-                  className="text-red-500"
-                >
-                  Excluir
-                </button>
-              </div>
+      <div className="mt-6">
+        <h2 className="mb-2 text-center text-xl font-semibold">
+          Posts Criados
+        </h2>
+        {posts?.map((post: Post) => (
+          <div
+            key={post.id}
+            className="mb-2 flex justify-between rounded border p-4"
+          >
+            <div>
+              {post.imageUrl && (
+                <img
+                  src={post.imageUrl || "/placeholder.svg"}
+                  alt={post.title}
+                  className="h-24 w-24 rounded object-cover"
+                />
+              )}
+              <h3 className="text-lg font-bold">{post.title}</h3>
+              <p className="text-sm text-gray-600">Por {post.name}</p>
+              <Link href={`/post/${post.slug}`} className="text-blue-600">
+                Ver Post
+              </Link>
             </div>
-          ))}
-        </div>
+            <div>
+              <button
+                onClick={() => handleEdit(post)}
+                className="mr-2 text-yellow-500"
+              >
+                Editar
+              </button>
+              <button
+                onClick={() => handleDelete(post.id)}
+                className="text-red-500"
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

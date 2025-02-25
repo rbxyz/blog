@@ -1,21 +1,14 @@
 import "~/styles/globals.css";
-
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
-
 import { TRPCReactProvider } from "~/trpc/react";
-
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-} from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
-  title: "Blog | Ruan",
-  description: "Blog do Ruan",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  title: "Blog | Ruan D3v",
+  description:
+    "Este é um blog sobre projetos, desenvolvimento web, conquistas pessoais e muito mais de um desenvolvedor, de um gestor de tráfego, de um auxiliar administrativo, de um designer e de um CEO.",
+  icons: [{ rel: "icon", url: "/logoAllpines.svg" }],
 };
 
 export default function RootLayout({
@@ -27,14 +20,7 @@ export default function RootLayout({
         <ClerkProvider
           publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
         >
-          <TRPCReactProvider>
-            <SignedOut>
-              <div className="flex min-h-screen items-center justify-center">
-                <SignInButton mode="modal" />
-              </div>
-            </SignedOut>
-            <SignedIn>{children}</SignedIn>
-          </TRPCReactProvider>
+          <TRPCReactProvider>{children}</TRPCReactProvider>
         </ClerkProvider>
       </body>
     </html>

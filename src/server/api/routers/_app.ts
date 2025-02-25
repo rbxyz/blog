@@ -1,10 +1,9 @@
-import { t } from "~/server/api/trpc";
-import { postRouter } from "./post";
-import { categoryRouter } from "./categories";
+import { router } from "~/server/api/trpc"
+import { postRouter } from "./post"
 
-export const appRouter = t.router({
+export const appRouter = router({
   post: postRouter,
-  category: categoryRouter,
-});
+})
 
-export type AppRouter = typeof appRouter;
+export type AppRouter = typeof appRouter
+
