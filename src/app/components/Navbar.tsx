@@ -8,22 +8,24 @@ import {
   useUser,
 } from "@clerk/nextjs";
 import Link from "next/link";
+import { Sun, Moon } from "lucide-react";
+import { useTheme } from "./ThemeProvider"; // 🔹 Importando o hook do tema
 
 export default function Navbar() {
   const { user } = useUser();
+  const { darkMode, toggleTheme } = useTheme();
   const ALLOWED_EMAIL = process.env.NEXT_PUBLIC_ALLOWED_EMAIL;
 
   return (
-    <nav className="flex items-center justify-between bg-gray-800 px-4 py-3 text-white">
-      <div className="flex items-center space-x-4">
-        <Link href="/" className="text-xl font-bold">
-          Ruan | D3v
-        </Link>
-        <Link href="/" className="hover:underline">
-          Home
+    <nav className="flex items-center justify-between bg-gray-900 px-6 py-4 text-white dark:bg-gray-700">
+      <div className="flex items-center space-x-6">
+        <Link
+          href="/"
+          className="text-2xl font-bold transition-opacity hover:opacity-80"
+        >
+          D3v | Ruan
         </Link>
 
-        {/* 🔹 Só exibe "Admin" se for o usuário correto */}
         {user?.primaryEmailAddress?.emailAddress === ALLOWED_EMAIL && (
           <Link href="/admin" className="hover:underline">
             Admin
@@ -31,15 +33,30 @@ export default function Navbar() {
         )}
       </div>
 
-      <div>
+      <div className="flex items-center space-x-4">
+        <button
+          onClick={toggleTheme}
+          className="rounded bg-gray-700 p-2 transition hover:bg-gray-600"
+        >
+          {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
+
         <SignedOut>
           <SignInButton
             mode="modal"
             className="rounded bg-blue-500 px-4 py-2 text-white"
           />
         </SignedOut>
+
         <SignedIn>
-          <UserButton />
+          <UserButton
+            afterSignOutUrl="/"
+            appearance={{
+              elements: {
+                avatarBox: "w-10 h-10 rounded-full border-2 border-white",
+              },
+            }}
+          />
         </SignedIn>
       </div>
     </nav>

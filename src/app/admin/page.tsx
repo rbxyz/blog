@@ -138,7 +138,6 @@ export default function AdminPosts() {
   }
   return (
     <div>
-      <Navbar />
       <div className="mx-auto max-w-4xl p-6">
         <h1 className="mb-4 text-2xl font-bold">Gerenciar Posts</h1>
 

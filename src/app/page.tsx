@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import SearchBy from "./components/SearchBy";
 import Navbar from "./components/Navbar";
 import Link from "next/link";
-import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react"; // Biblioteca de ícones
 
 import { Post } from "@prisma/client";
 
@@ -35,7 +33,6 @@ export default function HomePage() {
 
   return (
     <div>
-      <Navbar />
       <div className="mx-auto max-w-4xl p-4">
         <h1 className="mb-6 text-center text-3xl font-semibold text-gray-800">
           Lista de Posts

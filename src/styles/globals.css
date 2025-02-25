@@ -1,36 +1,44 @@
 @tailwind base;
 @tailwind components;
+
+@font-face {
+  font-family: "Lexend";
+  src: url("/fonts/Lexend-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lexend";
+  src: url("/fonts/Lexend-Bold.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lexend";
+  src: url("/fonts/Lexend-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
 @tailwind utilities;
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: Arial, sans-serif;
-  }
-  
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 10px;
-  }
-  
-  h2 {
-    font-size: 1.5rem;
-    margin-bottom: 8px;
-  }
-  
-  div[contenteditable="true"] {
-    min-height: 40px;
-    border: 1px solid #ccc;
-    padding: 5px;
-    margin: 5px 0;
-  }
-  
-  img {
-    max-width: 100%;
-    margin-top: 10px;
-  }
-  
+body {
+  font-family: "Lexend", sans-serif;
+  background-color: #f8f9fa;
+}
+
+body.dark {
+  color: white !important;
+  background-color: #111827 !important;
+}
+
+.dark h1, 
+.dark h2, 
+.dark h3, 
+.dark p, 
+.dark span, 
+.dark div {
+  color: white !important;
+}
