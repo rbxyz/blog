@@ -42,10 +42,9 @@ export default function Navbar() {
         </button>
 
         <SignedOut>
-          <SignInButton
-            mode="modal"
-            className="rounded bg-blue-500 px-4 py-2 text-white"
-          />
+          <div className="rounded bg-blue-500 px-4 py-2 text-white">
+            <SignInButton mode="modal" />
+          </div>
         </SignedOut>
 
         <SignedIn>
