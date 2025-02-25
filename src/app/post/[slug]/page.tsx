@@ -6,20 +6,21 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import Image from "next/image";
+import { GetStaticPropsContext } from "next"; // 🔹 Importa corretamente os tipos do Next.js
 
-// ✅ Garante que o Next.js saiba quais páginas gerar
+// ✅ Gera os slugs corretamente para pré-renderização
 export async function generateStaticParams() {
   const posts = await prisma.post.findMany({ select: { slug: true } });
 
   return posts.map((post) => ({ slug: post.slug }));
 }
 
-// ✅ Metadados dinâmicos com base no post
+// ✅ Define os metadados dinâmicos para SEO
 export async function generateMetadata({
   params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
+}: GetStaticPropsContext<{ slug: string }>): Promise<Metadata> {
+  if (!params?.slug) return { title: "Post não encontrado" };
+
   const post = await prisma.post.findUnique({
     where: { slug: params.slug },
     select: { title: true },
@@ -31,7 +32,7 @@ export async function generateMetadata({
   };
 }
 
-// ✅ Corrige a tipagem de `params`
+// ✅ Ajusta corretamente a tipagem de `params`
 export default async function PostPage({
   params,
 }: {
