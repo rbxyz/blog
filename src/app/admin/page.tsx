@@ -23,7 +23,7 @@ interface Post {
   title: string;
   content: string;
   name: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
   slug: string;
 }
 
