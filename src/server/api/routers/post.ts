@@ -7,14 +7,30 @@ export const postRouter = router({
   all: publicProcedure.query(async () => {
     try {
       console.log("📡 Recebida requisição para buscar posts...");
-      return await prisma.post.findMany({ orderBy: { createdAt: "desc" } });
+      return await prisma.post.findMany({
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          name: true,
+          imageUrl: true,
+          slug: true,
+          viewCount: true,
+          createdAt: true,
+        },
+      }).then(posts =>
+        posts.map(post => ({
+          ...post,
+          name: post.name ?? "Ruan | D3v", // 🔹 Corrigindo `null`
+        }))
+      );
     } catch (error) {
       console.error("🔥 Erro ao buscar posts:", error);
       throw new Error("Erro ao buscar posts");
     }
   }),
-
-  // 🔹 Novo endpoint para buscar o último post criado
+    // 🔹 Novo endpoint para buscar o último post criado
   getLatest: publicProcedure.query(async () => {
     try {
       return await prisma.post.findFirst({
