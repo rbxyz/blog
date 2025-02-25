@@ -3,7 +3,7 @@ import type { inferAsyncReturnType } from "@trpc/server"
 import SuperJSON from "superjson"
 import { prisma } from "~/server/db"
 
-export const createTRPCContext = async ({ headers }: { headers: Headers }) => {
+export const createTRPCContext = async ({ _headers }: { _headers: Headers }) => {
   console.log("DATABASE_URL:", process.env.DATABASE_URL)
   return { prisma }
 }

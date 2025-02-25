@@ -1,22 +1,16 @@
 "use client";
 
-import * as React from "react";
-import { ChangeEvent, useState } from "react";
+import type { ChangeEvent } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { trpc } from "~/trpc/react";
 import { useAuth, useUser } from "@clerk/nextjs";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import Link from "next/link";
+import Image from "next/image";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
-
-type PostForm = {
-  title: string;
-  content: string;
-  name: string;
-  imageUrl?: string;
-};
 
 interface Post {
   id: string;
@@ -27,10 +21,15 @@ interface Post {
   slug: string;
 }
 
-type PostUpdate = PostForm & { id: string };
+interface PostForm {
+  title: string;
+  content: string;
+  name: string;
+  imageUrl?: string;
+}
 
 export default function AdminPosts() {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded } = useAuth();
   const { user } = useUser();
 
   const [editingPost, setEditingPost] = useState<{ id: string } | null>(null);
@@ -43,13 +42,13 @@ export default function AdminPosts() {
 
   const { data: posts, refetch } = trpc.post.all.useQuery();
   const createPostMutation = trpc.post.create.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: refetch,
   });
   const updatePostMutation = trpc.post.update.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: refetch,
   });
   const deletePostMutation = trpc.post.delete.useMutation({
-    onSuccess: () => refetch(),
+    onSuccess: refetch,
   });
 
   const handleChange = (
@@ -58,24 +57,19 @@ export default function AdminPosts() {
     setForm((prevForm) => ({ ...prevForm, [e.target.name]: e.target.value }));
   };
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      setImage(e.target.files[0]);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    let imageUrl = form.imageUrl || "";
+    let imageUrl = form.imageUrl ?? "";
     if (image) {
       const formData = new FormData();
       formData.append("file", image);
+
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
-      const data = await res.json();
+      const data = (await res.json()) as { imageUrl: string };
       imageUrl = data.imageUrl;
     }
 
@@ -84,7 +78,7 @@ export default function AdminPosts() {
         id: editingPost.id,
         ...form,
         imageUrl,
-      } as PostUpdate);
+      });
       setEditingPost(null);
     } else {
       await createPostMutation.mutateAsync({ ...form, imageUrl });
@@ -94,13 +88,13 @@ export default function AdminPosts() {
     setImage(null);
   };
 
-  const handleEdit = (post: any) => {
+  const handleEdit = (post: Post) => {
     setEditingPost({ id: post.id });
     setForm({
       title: post.title,
       content: post.content,
       name: post.name,
-      imageUrl: post.imageUrl || "",
+      imageUrl: post.imageUrl ?? "",
     });
   };
 
@@ -111,10 +105,7 @@ export default function AdminPosts() {
   };
 
   const handleContentChange = (value?: string) => {
-    setForm((prevForm) => ({
-      ...prevForm,
-      content: value ?? "",
-    }));
+    setForm((prevForm) => ({ ...prevForm, content: value ?? "" }));
   };
 
   if (!isLoaded)
@@ -161,16 +152,17 @@ export default function AdminPosts() {
           >
             <div>
               {post.imageUrl && (
-                <img
-                  src={post.imageUrl || "/placeholder.svg"}
+                <Image
+                  src={post.imageUrl}
                   alt={post.title}
-                  className="h-24 w-24 rounded object-cover"
+                  width={300}
+                  height={200}
+                  className="mb-4 rounded-lg object-cover"
+                  priority
                 />
               )}
               <h3 className="text-lg font-bold">{post.title}</h3>
-              <p className="text-sm text-gray-600">
-                Por {post.name ?? "Ruan | D3v"}{" "}
-              </p>
+              <p className="text-sm text-gray-600">Por {post.name}</p>
               <Link href={`/post/${post.slug}`} className="text-blue-600">
                 Ver Post
               </Link>

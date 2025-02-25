@@ -1,35 +1,13 @@
 "use client";
 
+import type { Post } from "@prisma/client";
 import { trpc } from "~/trpc/react";
-import { useRouter } from "next/navigation";
 import SearchBy from "./components/SearchBy";
-import Navbar from "./components/Navbar";
 import Link from "next/link";
-
-import { Post } from "@prisma/client";
+import Image from "next/image";
 
 export default function HomePage() {
-  const router = useRouter();
-
   const { data: recentPosts } = trpc?.post?.recent?.useQuery() ?? { data: [] };
-  /*
-  const { data: mostReadPosts } = trpc?.post?.mostRead?.useQuery() ?? {
-    data: [],
-  };
-  const { data: trendingPosts } = trpc?.post?.trending?.useQuery() ?? {
-    data: [],
-  };
-  const {
-    data: posts,
-    error,
-    isLoading,
-  } = trpc?.post?.all?.useQuery() ?? { data: [] };
-  const { data: categories = [] } = trpc.category.all.useQuery();
-
-  if (isLoading) return <p>Carregando...</p>;
-  if (error) return <p>Erro ao carregar posts: {error.message}</p>;
-  
-  */
 
   return (
     <div>
@@ -56,10 +34,13 @@ export default function HomePage() {
                 className="block rounded border p-3 hover:bg-gray-100"
               >
                 {post.imageUrl && (
-                  <img
+                  <Image
                     src={post.imageUrl}
                     alt={post.title}
+                    width={300}
+                    height={200}
                     className="mb-2 h-40 w-full rounded-md object-cover"
+                    priority
                   />
                 )}
                 <h3 className="font-semibold text-blue-600 hover:underline">
