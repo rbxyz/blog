@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { prisma } from '../../db';
+import { z } from "zod";
+import { prisma } from "../../db";
 import { publicProcedure, router } from "../trpc";
-import slugify from 'slugify';
+import slugify from "slugify";
 
 export const postRouter = router({
   all: publicProcedure.query(async () => {
@@ -9,8 +9,20 @@ export const postRouter = router({
       console.log("📡 Recebida requisição para buscar posts...");
       return await prisma.post.findMany({ orderBy: { createdAt: "desc" } });
     } catch (error) {
-      console.error("🔥 Erro ao buscar posts no banco:", error);
+      console.error("🔥 Erro ao buscar posts:", error);
       throw new Error("Erro ao buscar posts");
+    }
+  }),
+
+  // 🔹 Novo endpoint para buscar o último post criado
+  getLatest: publicProcedure.query(async () => {
+    try {
+      return await prisma.post.findFirst({
+        orderBy: { createdAt: "desc" },
+      });
+    } catch (error) {
+      console.error("🔥 Erro ao buscar o post mais recente:", error);
+      throw new Error("Erro ao buscar post mais recente");
     }
   }),
 
@@ -22,7 +34,7 @@ export const postRouter = router({
 
       if (!post) throw new Error("Post não encontrado");
 
-      // Incrementa o contador de visualizações
+      // Incrementa visualizações
       await prisma.post.update({
         where: { id: input },
         data: { viewCount: { increment: 1 } },
@@ -43,7 +55,6 @@ export const postRouter = router({
 
       if (!post) throw new Error("Post não encontrado");
 
-      // Incrementa o contador de visualizações
       await prisma.post.update({
         where: { slug: input },
         data: { viewCount: { increment: 1 } },
@@ -63,7 +74,7 @@ export const postRouter = router({
         content: z.string().min(10),
         name: z.string().min(3),
         imageUrl: z.string().optional(),
-      }),
+      })
     )
     .mutation(async ({ input }) => {
       try {
@@ -71,7 +82,7 @@ export const postRouter = router({
 
         // Verifica se o slug já existe
         const existingPost = await prisma.post.findUnique({ where: { slug } });
-        if (existingPost) throw new Error("Título já está em uso. Escolha outro.");
+        if (existingPost) throw new Error("Título já está em uso.");
 
         const newPost = await prisma.post.create({
           data: {
@@ -93,13 +104,15 @@ export const postRouter = router({
     }),
 
   update: publicProcedure
-    .input(z.object({
-      id: z.string(),
-      title: z.string().min(5),
-      content: z.string().min(5),
-      name: z.string().min(3),
-      imageUrl: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string().min(5),
+        content: z.string().min(5),
+        name: z.string().min(3),
+        imageUrl: z.string().optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       try {
         const slug = slugify(input.title, { lower: true, strict: true });
@@ -135,7 +148,7 @@ export const postRouter = router({
   }),
 
   search: publicProcedure
-    .input(z.object({ query: z.string().min(3) })) // Limite mínimo de 3 caracteres
+    .input(z.object({ query: z.string().min(3) }))
     .query(async ({ input }) => {
       return await prisma.post.findMany({
         where: {
