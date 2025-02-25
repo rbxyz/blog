@@ -7,12 +7,13 @@ import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import Image from "next/image";
 
-interface Params {
-  slug: string;
+// Tipagem correta para a página
+interface PageProps {
+  params: { slug: string };
 }
 
-// O Next.js exige que 'params' esteja presente e corretamente tipado
-export default async function PostPage({ params }: { params: Params }) {
+// Corrigido: Tipagem correta no parâmetro da página
+export default async function PostPage({ params }: PageProps) {
   const post = await prisma.post.findUnique({
     where: { slug: params.slug },
   });
@@ -47,12 +48,10 @@ export default async function PostPage({ params }: { params: Params }) {
   );
 }
 
-// Corrigindo generateMetadata para seguir o tipo correto do Next.js
+// Corrigido: Tipagem correta para os metadados
 export async function generateMetadata({
   params,
-}: {
-  params: Params;
-}): Promise<Metadata> {
+}: PageProps): Promise<Metadata> {
   const post = await prisma.post.findUnique({
     where: { slug: params.slug },
     select: { title: true },
@@ -71,8 +70,8 @@ export async function generateMetadata({
   };
 }
 
-// Corrigindo generateStaticParams para o formato correto
-export async function generateStaticParams() {
+// Corrigido: Retorno no formato correto para o Next.js
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
   const posts = await prisma.post.findMany({ select: { slug: true } });
   return posts.map((post) => ({ slug: post.slug }));
 }
