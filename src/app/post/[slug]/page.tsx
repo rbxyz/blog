@@ -7,18 +7,16 @@ import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import Image from "next/image";
 
-// ✅ Gera os slugs corretamente para pré-renderização
+type Props = {
+  params: { slug: string };
+};
+
 export async function generateStaticParams() {
   const posts = await prisma.post.findMany({ select: { slug: true } });
   return posts.map((post) => ({ slug: post.slug }));
 }
 
-// ✅ Corrige a tipagem para a função generateMetadata
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await prisma.post.findUnique({
     where: { slug: params.slug },
     select: { title: true },
@@ -37,12 +35,7 @@ export async function generateMetadata({
   };
 }
 
-// ✅ Mantém a tipagem correta para os parâmetros da página
-export default async function PostPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default async function PostPage({ params }: Props) {
   const post = await prisma.post.findUnique({
     where: { slug: params.slug },
   });
