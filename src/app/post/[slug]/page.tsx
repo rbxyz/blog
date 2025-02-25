@@ -16,8 +16,11 @@ export async function generateStaticParams() {
 // 🔹 Ajustando a tipagem correta dos parâmetros
 export default async function PostPage({
   params,
-}: InferGetStaticPropsType<typeof generateStaticParams>) {
-  const slug = params?.slug;
+}: {
+  params: { slug: string };
+}) {
+  // 🔹 Tipagem manual correta
+  const slug = params.slug;
   if (!slug) return notFound();
 
   const post = await prisma.post.findUnique({
@@ -25,7 +28,7 @@ export default async function PostPage({
   });
   if (!post) return notFound();
 
-  console.log("Conteúdo armazenado no banco de dados:", post.content);
+  // console.log("Conteúdo armazenado no banco de dados:", post.content);
 
   return (
     <div>
