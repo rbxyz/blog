@@ -4,7 +4,6 @@ import * as React from "react";
 import { ChangeEvent, useState } from "react";
 import dynamic from "next/dynamic";
 import { trpc } from "~/trpc/react";
-import Navbar from "../components/Navbar";
 import { useAuth, useUser } from "@clerk/nextjs";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
@@ -33,8 +32,6 @@ type PostUpdate = PostForm & { id: string };
 export default function AdminPosts() {
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
-
-  const ALLOWED_EMAIL = process.env.NEXT_PUBLIC_ALLOWED_EMAIL;
 
   const [editingPost, setEditingPost] = useState<{ id: string } | null>(null);
   const [form, setForm] = useState<PostForm>({
@@ -119,23 +116,10 @@ export default function AdminPosts() {
       content: value ?? "",
     }));
   };
-  // 🔹 Aguarda o carregamento antes de qualquer verificação
+
   if (!isLoaded)
     return <p className="text-center text-gray-500">Carregando...</p>;
 
-  console.log("Email permitido:", process.env.NEXT_PUBLIC_ALLOWED_EMAIL);
-  console.log(
-    "Email do usuário logado:",
-    user?.primaryEmailAddress?.emailAddress,
-  );
-
-  if (
-    !isSignedIn ||
-    !user ||
-    user.primaryEmailAddress?.emailAddress !== ALLOWED_EMAIL
-  ) {
-    return <p className="text-lg text-red-500">Acesso negado.</p>;
-  }
   return (
     <div>
       <div className="mx-auto max-w-4xl p-6">
@@ -155,9 +139,7 @@ export default function AdminPosts() {
             value={form.content}
             onChange={handleContentChange}
             height={600}
-            previewOptions={{
-              remarkPlugins: [remarkGfm, remarkBreaks],
-            }}
+            previewOptions={{ remarkPlugins: [remarkGfm, remarkBreaks] }}
           />
           <button
             type="submit"
