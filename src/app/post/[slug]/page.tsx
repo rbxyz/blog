@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import Navbar from "~/app/components/Navbar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import rehypeSanitize from "rehype-sanitize"; // Adicionado para sanitização contra XSS
+import rehypeSanitize from "rehype-sanitize"; // Proteção contra XSS
+import { InferGetStaticPropsType } from "next"; // 🔹 Importação correta
 
 export async function generateStaticParams() {
   const posts = await prisma.post.findMany({
@@ -12,15 +13,11 @@ export async function generateStaticParams() {
   return posts.map((post) => ({ slug: post.slug }));
 }
 
-// 🔹 Tipagem correta para `params`
-interface PostPageProps {
-  params: {
-    slug?: string;
-  };
-}
-
-export default async function PostPage({ params }: PostPageProps) {
-  const slug = params.slug;
+// 🔹 Ajustando a tipagem correta dos parâmetros
+export default async function PostPage({
+  params,
+}: InferGetStaticPropsType<typeof generateStaticParams>) {
+  const slug = params?.slug;
   if (!slug) return notFound();
 
   const post = await prisma.post.findUnique({
