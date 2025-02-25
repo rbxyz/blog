@@ -6,43 +6,43 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import Image from "next/image";
-import { GetStaticPropsContext } from "next"; // 🔹 Importa corretamente os tipos do Next.js
 
 // ✅ Gera os slugs corretamente para pré-renderização
 export async function generateStaticParams() {
   const posts = await prisma.post.findMany({ select: { slug: true } });
-
   return posts.map((post) => ({ slug: post.slug }));
 }
 
-// ✅ Define os metadados dinâmicos para SEO
+// ✅ Corrige a tipagem para a função generateMetadata
 export async function generateMetadata({
   params,
-}: GetStaticPropsContext<{ slug: string }>): Promise<Metadata> {
-  if (!params?.slug) return { title: "Post não encontrado" };
-
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
   const post = await prisma.post.findUnique({
     where: { slug: params.slug },
     select: { title: true },
   });
 
+  if (!post) {
+    return {
+      title: "Post não encontrado",
+      description: "Post não encontrado",
+    };
+  }
+
   return {
-    title: post?.title ?? "Post não encontrado",
-    description: post ? `Leia ${post.title} no Blog.` : "Post não encontrado",
+    title: post.title,
+    description: `Leia ${post.title} no Blog.`,
   };
 }
 
-// ✅ Ajusta corretamente a tipagem de `params`
+// ✅ Mantém a tipagem correta para os parâmetros da página
 export default async function PostPage({
   params,
 }: {
   params: { slug: string };
 }) {
-  if (!params.slug) {
-    console.error("❌ Erro: Nenhum slug encontrado nos parâmetros da página.");
-    return notFound();
-  }
-
   const post = await prisma.post.findUnique({
     where: { slug: params.slug },
   });
@@ -56,7 +56,7 @@ export default async function PostPage({
         <h1 className="mb-4 text-3xl font-bold">{post.title}</h1>
         {post.imageUrl && (
           <Image
-            src={post.imageUrl}
+            src={post.imageUrl || "/placeholder.svg"}
             alt={post.title}
             width={800}
             height={360}
