@@ -168,7 +168,9 @@ export default function AdminPosts() {
                 />
               )}
               <h3 className="text-lg font-bold">{post.title}</h3>
-              <p className="text-sm text-gray-600">Por {post.name}</p>
+              <p className="text-sm text-gray-600">
+                Por {post.name ?? "Ruan | D3v"}{" "}
+              </p>
               <Link href={`/post/${post.slug}`} className="text-blue-600">
                 Ver Post
               </Link>
