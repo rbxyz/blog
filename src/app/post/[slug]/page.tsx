@@ -7,23 +7,19 @@ import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import Image from "next/image";
 
-interface PostPageProps {
-  params: { slug?: string };
-}
-
+// ✅ Garante que o Next.js saiba quais páginas gerar
 export async function generateStaticParams() {
-  const posts = await prisma.post.findMany({
-    select: { slug: true },
-  });
+  const posts = await prisma.post.findMany({ select: { slug: true } });
 
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
+// ✅ Metadados dinâmicos com base no post
 export async function generateMetadata({
   params,
-}: PostPageProps): Promise<Metadata> {
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
   const post = await prisma.post.findUnique({
     where: { slug: params.slug },
     select: { title: true },
@@ -35,8 +31,13 @@ export async function generateMetadata({
   };
 }
 
-export default async function PostPage({ params }: PostPageProps) {
-  if (!params?.slug) {
+// ✅ Corrige a tipagem de `params`
+export default async function PostPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  if (!params.slug) {
     console.error("❌ Erro: Nenhum slug encontrado nos parâmetros da página.");
     return notFound();
   }
