@@ -7,18 +7,18 @@ import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import Image from "next/image";
 
-type Params = {
+interface Params {
   slug: string;
-};
+}
 
-type Props = {
+interface Props {
   params: Params;
-  searchParams: { [key: string]: string | string[] | undefined };
-};
+  searchParams?: { [key: string]: string | string[] | undefined };
+}
 
-export async function generateStaticParams(): Promise<Params[]> {
+export async function generateStaticParams(): Promise<{ params: Params }[]> {
   const posts = await prisma.post.findMany({ select: { slug: true } });
-  return posts.map((post) => ({ slug: post.slug }));
+  return posts.map((post) => ({ params: { slug: post.slug } }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
