@@ -137,6 +137,7 @@ export default function AdminPosts() {
             onChange={handleContentChange}
             height={600}
             previewOptions={{ remarkPlugins: [remarkGfm, remarkBreaks] }}
+            className="bg-white text-black dark:bg-gray-900 dark:text-white"
           />
 
           {/* 🔹 Input para Upload de Imagem */}
