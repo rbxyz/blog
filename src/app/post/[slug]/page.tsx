@@ -7,16 +7,14 @@ import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import Image from "next/image";
 
-// Tipagem correta para a página
-interface PageProps {
-  params: { slug: string };
-}
+// ✅ Corrigindo a tipagem do `params`
+type PageParams = Promise<{ slug: string }>;
 
-// Corrigido: Tipagem correta no parâmetro da página
-export default async function PostPage({ params }: PageProps) {
-  const post = await prisma.post.findUnique({
-    where: { slug: params.slug },
-  });
+export default async function PostPage({ params }: { params: PageParams }) {
+  const { slug } = await params; // 🔹 Aguarda o `params` ser resolvido corretamente
+  if (!slug) return notFound();
+
+  const post = await prisma.post.findUnique({ where: { slug } });
 
   if (!post) return notFound();
 
@@ -27,7 +25,7 @@ export default async function PostPage({ params }: PageProps) {
         <h1 className="mb-4 text-3xl font-bold">{post.title}</h1>
         {post.imageUrl && (
           <Image
-            src={post.imageUrl || "/placeholder.svg"}
+            src={post.imageUrl}
             alt={post.title}
             width={800}
             height={360}
@@ -48,30 +46,26 @@ export default async function PostPage({ params }: PageProps) {
   );
 }
 
-// Corrigido: Tipagem correta para os metadados
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const post = await prisma.post.findUnique({
-    where: { slug: params.slug },
-    select: { title: true },
-  });
-
-  if (!post) {
-    return {
-      title: "Post não encontrado",
-      description: "Post não encontrado",
-    };
-  }
-
-  return {
-    title: post.title,
-    description: `Leia ${post.title} no Blog.`,
-  };
-}
-
-// Corrigido: Retorno no formato correto para o Next.js
+// ✅ Geração estática dos slugs
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
   const posts = await prisma.post.findMany({ select: { slug: true } });
   return posts.map((post) => ({ slug: post.slug }));
+}
+
+// ✅ Metadados dinâmicos para SEO
+export async function generateMetadata({
+  params,
+}: {
+  params: PageParams;
+}): Promise<Metadata> {
+  const { slug } = await params; // 🔹 Aguarda o `params`
+  const post = await prisma.post.findUnique({
+    where: { slug },
+    select: { title: true },
+  });
+
+  return {
+    title: post?.title ?? "Post não encontrado",
+    description: post ? `Leia ${post.title} no Blog.` : "Post não encontrado",
+  };
 }

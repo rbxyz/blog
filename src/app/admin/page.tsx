@@ -30,7 +30,6 @@ interface PostForm {
 
 export default function AdminPosts() {
   const { isLoaded } = useAuth();
-  const { user } = useUser();
 
   const [editingPost, setEditingPost] = useState<{ id: string } | null>(null);
   const [form, setForm] = useState<PostForm>({
@@ -41,14 +40,17 @@ export default function AdminPosts() {
   const [image, setImage] = useState<File | null>(null);
 
   const { data: posts, refetch } = trpc.post.all.useQuery();
+
   const createPostMutation = trpc.post.create.useMutation({
-    onSuccess: refetch,
+    onSuccess: () => refetch(),
   });
+
   const updatePostMutation = trpc.post.update.useMutation({
-    onSuccess: refetch,
+    onSuccess: () => refetch(),
   });
+
   const deletePostMutation = trpc.post.delete.useMutation({
-    onSuccess: refetch,
+    onSuccess: () => refetch(),
   });
 
   const handleChange = (
