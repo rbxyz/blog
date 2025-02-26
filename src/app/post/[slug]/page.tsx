@@ -1,11 +1,15 @@
 import { prisma } from "~/server/db";
 import { notFound } from "next/navigation";
-import Navbar from "~/app/components/Navbar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import rehypeSanitize from "rehype-sanitize"; // 🔹 Adicionado para evitar bloqueio de HTML perigoso
-import "~/styles/markdown.css"; // 🔹 Certifique-se de que o CSS está sendo importado
+import rehypeSanitize from "rehype-sanitize"; // 🔹 Evita bloqueio de HTML perigoso
+import "~/styles/markdown.css"; // 🔹 Certifique-se de que o CSS está importado corretamente
+
+// ✅ Definição correta da tipagem
+export interface PageProps {
+  params: { slug: string };
+}
 
 export async function generateStaticParams() {
   const posts = await prisma.post.findMany({
@@ -17,24 +21,26 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function PostPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const slug = params?.slug;
+export default async function PostPage({ params }: PageProps) {
+  console.log("🚀 Renderizando PostPage...");
+  console.log("🔍 Parâmetro `params` recebido:", params);
 
-  if (!slug) {
+  if (!params?.slug) {
+    console.error("❌ Erro: Nenhum slug encontrado nos parâmetros.");
     return notFound();
   }
 
+  console.log("🔎 Buscando post no banco de dados com slug:", params.slug);
   const post = await prisma.post.findUnique({
-    where: { slug },
+    where: { slug: params.slug },
   });
 
   if (!post) {
+    console.error("❌ Erro: Nenhum post encontrado para o slug:", params.slug);
     return notFound();
   }
+
+  console.log("✅ Post encontrado:", post);
 
   return (
     <div>
