@@ -3,40 +3,37 @@ import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import rehypeSanitize from "rehype-sanitize"; // 🔹 Evita bloqueio de HTML perigoso
-import "~/styles/markdown.css"; // 🔹 Certifique-se de que o CSS está importado corretamente
+import rehypeSanitize from "rehype-sanitize";
+import "~/styles/markdown.css";
 
-// ✅ Definição correta da tipagem
-export interface PageProps {
+// ✅ Correção: Define um tipo explícito para PageProps
+interface PageProps {
   params: { slug: string };
 }
 
+// ✅ Mantém `params` síncrono
 export async function generateStaticParams() {
-  const posts = await prisma.post.findMany({
-    select: { slug: true },
-  });
+  const posts = await prisma.post.findMany({ select: { slug: true } });
 
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export default async function PostPage({ params }: PageProps) {
   console.log("🚀 Renderizando PostPage...");
   console.log("🔍 Parâmetro `params` recebido:", params);
 
-  if (!params?.slug) {
-    console.error("❌ Erro: Nenhum slug encontrado nos parâmetros.");
+  const { slug } = params;
+
+  if (!slug) {
+    console.error("❌ Erro: Nenhum slug encontrado.");
     return notFound();
   }
 
-  console.log("🔎 Buscando post no banco de dados com slug:", params.slug);
-  const post = await prisma.post.findUnique({
-    where: { slug: params.slug },
-  });
+  console.log("🔎 Buscando post no banco de dados com slug:", slug);
+  const post = await prisma.post.findUnique({ where: { slug } });
 
   if (!post) {
-    console.error("❌ Erro: Nenhum post encontrado para o slug:", params.slug);
+    console.error("❌ Erro: Nenhum post encontrado para o slug:", slug);
     return notFound();
   }
 
@@ -59,7 +56,7 @@ export default async function PostPage({ params }: PageProps) {
         <article className="markdown-container prose prose-lg dark:prose-invert max-w-none">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw, rehypeSanitize]} // 🔹 Garante segurança e mantém HTML embutido
+            rehypePlugins={[rehypeRaw, rehypeSanitize]}
             components={{
               h1: ({ children }) => (
                 <h1 className="text-3xl font-bold">{children}</h1>
