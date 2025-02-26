@@ -35,14 +35,6 @@ export default function HomePage() {
   if (isLoading) return <p>Carregando posts...</p>;
   if (error) return <p className="text-red-500">Erro ao carregar posts</p>;
 
-  if (!isSignedIn) {
-    return (
-      <p className="text-center text-red-500">
-        Acesso negado. Por favor, faça login.
-      </p>
-    );
-  }
-
   return (
     <div>
       <div className="mx-auto max-w-4xl p-4">
