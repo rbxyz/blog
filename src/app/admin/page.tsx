@@ -29,7 +29,16 @@ interface PostForm {
 }
 
 export default function AdminPosts() {
-  const { isLoaded } = useAuth();
+  console.log("🚀 Renderizando AdminPosts...");
+
+  const { isLoaded, isSignedIn, userId } = useAuth();
+  const { user } = useUser();
+
+  console.log("🔍 Estado da Autenticação:");
+  console.log("✅ isLoaded:", isLoaded);
+  console.log("✅ isSignedIn:", isSignedIn);
+  console.log("✅ userId:", userId);
+  console.log("✅ User:", user);
 
   const [editingPost, setEditingPost] = useState<{ id: string } | null>(null);
   const [form, setForm] = useState<PostForm>({
@@ -39,7 +48,16 @@ export default function AdminPosts() {
   });
   const [image, setImage] = useState<File | null>(null);
 
-  const { data: posts, refetch } = trpc.post.all.useQuery();
+  const {
+    data: posts,
+    refetch,
+    error: postError,
+    isLoading: postLoading,
+  } = trpc.post.all.useQuery();
+
+  console.log("✅ Posts Carregados:", posts);
+  console.error("❌ Erro ao Carregar Posts:", postError);
+  console.log("⏳ Carregando Posts:", postLoading);
 
   const createPostMutation = trpc.post.create.useMutation({
     onSuccess: () => refetch(),

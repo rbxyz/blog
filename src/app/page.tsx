@@ -7,7 +7,24 @@ import Link from "next/link";
 import Image from "next/image";
 
 export default function HomePage() {
-  const { data: recentPosts } = trpc?.post?.recent?.useQuery() ?? { data: [] };
+  console.log("🚀 Renderizando HomePage...");
+
+  const {
+    data: recentPosts,
+    error,
+    isLoading,
+  } = trpc?.post?.recent?.useQuery() ?? {
+    data: [],
+    error: null,
+    isLoading: false,
+  };
+
+  console.log("✅ Dados RecentPosts:", recentPosts);
+  console.error("❌ Erro RecentPosts:", error);
+  console.log("⏳ Carregando:", isLoading);
+
+  if (isLoading) return <p>Carregando posts...</p>;
+  if (error) return <p className="text-red-500">Erro ao carregar posts</p>;
 
   return (
     <div>
