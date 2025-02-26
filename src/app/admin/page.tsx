@@ -128,7 +128,7 @@ export default function AdminPosts() {
             value={form.title}
             onChange={handleChange}
             placeholder="Título"
-            className="w-full rounded border p-2"
+            className="w-full rounded border bg-white p-2 text-black dark:bg-gray-900 dark:text-white"
             required
           />
 
