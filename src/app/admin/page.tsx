@@ -131,14 +131,6 @@ export default function AdminPosts() {
   if (!isLoaded)
     return <p className="text-center text-gray-500">Carregando...</p>;
 
-  if (!isSignedIn) {
-    return (
-      <p className="text-center text-red-500">
-        Acesso negado. Por favor, faça login.
-      </p>
-    );
-  }
-
   return (
     <div>
       <div className="mx-auto max-w-4xl p-6">
