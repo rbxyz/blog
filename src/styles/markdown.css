@@ -1,0 +1,40 @@
+.markdown-container {
+    font-family: "Lexend", sans-serif;
+    line-height: 1.75;
+  }
+  
+  .markdown-container h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .markdown-container h2 {
+    font-size: 1.5rem;
+    font-weight: semibold;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .markdown-container p {
+    margin-bottom: 1rem;
+  }
+  
+  .markdown-container ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+  }
+  
+  .markdown-container ol {
+    list-style-type: decimal;
+    margin-left: 1.5rem;
+  }
+  
+  .markdown-container code {
+    background-color: #2d2d2d;
+    color: white;
+    padding: 0.2rem 0.4rem;
+    border-radius: 5px;
+  }
+  

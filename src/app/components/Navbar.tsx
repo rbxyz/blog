@@ -16,10 +16,6 @@ export default function Navbar() {
   const { darkMode, toggleTheme } = useTheme();
   const ALLOWED_EMAIL = process.env.NEXT_PUBLIC_ALLOWED_EMAIL;
 
-  // Log para verificar o objeto user e o valor de ALLOWED_EMAIL
-  console.log("User:", user);
-  console.log("ALLOWED_EMAIL:", ALLOWED_EMAIL);
-
   // Verificação do usuário e do e-mail
   let adminLink = null;
   if (user) {
@@ -29,14 +25,8 @@ export default function Navbar() {
           Admin
         </Link>
       );
-    } else {
-      console.log(
-        "E-mail do usuário não autorizado:",
-        user.primaryEmailAddress?.emailAddress,
-      );
     }
   } else {
-    console.log("Usuário não autenticado");
   }
 
   return (

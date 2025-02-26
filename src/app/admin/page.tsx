@@ -59,9 +59,7 @@ export default function AdminPosts() {
   };
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
-    }
+    setImage(e.target.files?.[0] ?? null); // ✅ Uso do optional chaining
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

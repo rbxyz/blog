@@ -8,6 +8,9 @@
     ],
     "[project]/src/app/admin/page": [
       "static/media/Geist_Variable-s.p.781b491f.woff2"
+    ],
+    "[project]/src/app/post/[slug]/page": [
+      "static/media/Geist_Variable-s.p.781b491f.woff2"
     ]
   },
   "appUsingSizeAdjust": true,

@@ -1,40 +1,79 @@
-import type { Metadata } from "next";
 import { prisma } from "~/server/db";
 import { notFound } from "next/navigation";
+import Navbar from "~/app/components/Navbar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import rehypeSanitize from "rehype-sanitize";
-import Image from "next/image";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize"; // 🔹 Adicionado para evitar bloqueio de HTML perigoso
+import "~/styles/markdown.css"; // 🔹 Certifique-se de que o CSS está sendo importado
 
-// ✅ Corrigindo a tipagem do `params`
-type PageParams = Promise<{ slug: string }>;
+export async function generateStaticParams() {
+  const posts = await prisma.post.findMany({
+    select: { slug: true },
+  });
 
-export default async function PostPage({ params }: { params: PageParams }) {
-  const { slug } = await params; // 🔹 Aguarda o `params` ser resolvido corretamente
-  if (!slug) return notFound();
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}
 
-  const post = await prisma.post.findUnique({ where: { slug } });
+export default async function PostPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const slug = params?.slug;
 
-  if (!post) return notFound();
+  if (!slug) {
+    return notFound();
+  }
+
+  const post = await prisma.post.findUnique({
+    where: { slug },
+  });
+
+  if (!post) {
+    return notFound();
+  }
 
   return (
     <div>
       <div className="mx-auto max-w-4xl p-4">
         <h1 className="mb-4 text-3xl font-bold">{post.title}</h1>
+
         {post.imageUrl && (
-          <Image
+          <img
             src={post.imageUrl}
             alt={post.title}
-            width={800}
-            height={360}
             className="mb-4 w-full rounded-lg object-cover"
-            priority
+            style={{ height: "360px" }}
           />
         )}
-        <article className="prose prose-lg dark:prose-invert max-w-none">
+
+        <article className="markdown-container prose prose-lg dark:prose-invert max-w-none">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeSanitize]}
+            rehypePlugins={[rehypeRaw, rehypeSanitize]} // 🔹 Garante segurança e mantém HTML embutido
+            components={{
+              h1: ({ children }) => (
+                <h1 className="text-3xl font-bold">{children}</h1>
+              ),
+              h2: ({ children }) => (
+                <h2 className="text-2xl font-semibold">{children}</h2>
+              ),
+              p: ({ children }) => <p className="mb-4">{children}</p>,
+              ul: ({ children }) => (
+                <ul className="list-disc pl-5">{children}</ul>
+              ),
+              ol: ({ children }) => (
+                <ol className="list-decimal pl-5">{children}</ol>
+              ),
+              code: ({ children }) => (
+                <code className="rounded bg-gray-800 px-2 py-1 text-white">
+                  {children}
+                </code>
+              ),
+            }}
           >
             {post.content}
           </ReactMarkdown>
@@ -42,28 +81,4 @@ export default async function PostPage({ params }: { params: PageParams }) {
       </div>
     </div>
   );
-}
-
-// ✅ Geração estática dos slugs
-export async function generateStaticParams(): Promise<{ slug: string }[]> {
-  const posts = await prisma.post.findMany({ select: { slug: true } });
-  return posts.map((post) => ({ slug: post.slug }));
-}
-
-// ✅ Metadados dinâmicos para SEO
-export async function generateMetadata({
-  params,
-}: {
-  params: PageParams;
-}): Promise<Metadata> {
-  const { slug } = await params; // 🔹 Aguarda o `params`
-  const post = await prisma.post.findUnique({
-    where: { slug },
-    select: { title: true },
-  });
-
-  return {
-    title: post?.title ?? "Post não encontrado",
-    description: post ? `Leia ${post.title} no Blog.` : "Post não encontrado",
-  };
 }

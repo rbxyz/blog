@@ -5,11 +5,8 @@ import { trpc } from "~/trpc/react";
 import SearchBy from "./components/SearchBy";
 import Link from "next/link";
 import Image from "next/image";
-import { useAuth, useUser } from "@clerk/nextjs";
 
 export default function HomePage() {
-  console.log("🚀 Renderizando HomePage...");
-
   const {
     data: recentPosts,
     error,
@@ -19,19 +16,6 @@ export default function HomePage() {
     error: null,
     isLoading: false,
   };
-  const { isLoaded, isSignedIn, userId } = useAuth();
-  const { user } = useUser();
-
-  console.log("🔍 Estado da Autenticação:");
-  console.log("✅ isLoaded:", isLoaded);
-  console.log("✅ isSignedIn:", isSignedIn);
-  console.log("✅ userId:", userId);
-  console.log("✅ User:", user);
-
-  console.log("✅ Dados RecentPosts:", recentPosts);
-  console.error("❌ Erro RecentPosts:", error);
-  console.log("⏳ Carregando:", isLoading);
-
   if (isLoading) return <p>Carregando posts...</p>;
   if (error) return <p className="text-red-500">Erro ao carregar posts</p>;
 
