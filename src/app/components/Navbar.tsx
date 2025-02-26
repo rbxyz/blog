@@ -9,12 +9,35 @@ import {
 } from "@clerk/nextjs";
 import Link from "next/link";
 import { Sun, Moon } from "lucide-react";
-import { useTheme } from "./ThemeProvider"; // 🔹 Importando o hook do tema
+import { useTheme } from "./ThemeProvider";
 
 export default function Navbar() {
   const { user } = useUser();
   const { darkMode, toggleTheme } = useTheme();
   const ALLOWED_EMAIL = process.env.NEXT_PUBLIC_ALLOWED_EMAIL;
+
+  // Log para verificar o objeto user e o valor de ALLOWED_EMAIL
+  console.log("User:", user);
+  console.log("ALLOWED_EMAIL:", ALLOWED_EMAIL);
+
+  // Verificação do usuário e do e-mail
+  let adminLink = null;
+  if (user) {
+    if (user.primaryEmailAddress?.emailAddress === ALLOWED_EMAIL) {
+      adminLink = (
+        <Link href="/admin" className="hover:underline">
+          Admin
+        </Link>
+      );
+    } else {
+      console.log(
+        "E-mail do usuário não autorizado:",
+        user.primaryEmailAddress?.emailAddress,
+      );
+    }
+  } else {
+    console.log("Usuário não autenticado");
+  }
 
   return (
     <nav className="flex items-center justify-between bg-gray-900 px-6 py-4 text-white dark:bg-gray-700">
@@ -26,11 +49,8 @@ export default function Navbar() {
           D3v | Ruan
         </Link>
 
-        {user?.primaryEmailAddress?.emailAddress === ALLOWED_EMAIL && (
-          <Link href="/admin" className="hover:underline">
-            Admin
-          </Link>
-        )}
+        {/* Renderizar link Admin se o usuário estiver autorizado */}
+        {adminLink}
       </div>
 
       <div className="flex items-center space-x-4">
