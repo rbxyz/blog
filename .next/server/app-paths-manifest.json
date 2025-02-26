@@ -1,8 +1,6 @@
 {
+  "/page": "app/page.js",
   "/_not-found/page": "app/_not-found/page.js",
   "/api/trpc/[trpc]/route": "app/api/trpc/[trpc]/route.js",
-  "/page": "app/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/api/upload/route": "app/api/upload/route.js",
-  "/post/[slug]/page": "app/post/[slug]/page.js"
+  "/admin/page": "app/admin/page.js"
 }

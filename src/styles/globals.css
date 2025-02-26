@@ -26,11 +26,9 @@
 
 body {
   font-family: "Lexend", sans-serif;
-  background-color: #f8f9fa;
 }
 
 body.dark {
-  color: white !important;
   background-color: #111827 !important;
 }
 
