@@ -24,12 +24,36 @@
 
 @tailwind utilities;
 
+/* Definindo o modo escuro como padrão */
+:root {
+  --background-color: #111827;
+  --text-color: #ffffff;
+}
+
+[data-theme="dark"] {
+  --background-color: #111827;
+  --text-color: #ffffff;
+}
+
+[data-theme="light"] {
+  --background-color: #ffffff;
+  --text-color: #000000;
+}
+
+/* Aplicando as variáveis no restante do CSS */
 body {
+  background-color: var(--background-color);
+  color: var(--text-color);
   font-family: "Lexend", sans-serif;
+
 }
 
 body.dark {
   background-color: #111827 !important;
+}
+
+a {
+  color: var(--text-color);
 }
 
 .dark h1, 
