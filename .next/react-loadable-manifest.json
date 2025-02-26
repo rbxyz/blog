@@ -1,0 +1,21 @@
+{
+  "../node_modules/@clerk/nextjs/dist/esm/app-router/client/ClerkProvider.js -> ./keyless-creator-reader.js": {
+    "id": 809,
+    "files": [
+      "static/chunks/809.c894506b60310e72.js"
+    ]
+  },
+  "../node_modules/@clerk/nextjs/dist/esm/app-router/client/keyless-cookie-sync.js -> ../keyless-actions.js": {
+    "id": 8489,
+    "files": [
+      "static/chunks/489.1ae0b1ed0b814c3c.js"
+    ]
+  },
+  "app/admin/page.tsx -> @uiw/react-md-editor": {
+    "id": 4899,
+    "files": [
+      "static/css/7d7bae49d5e0d686.css",
+      "static/chunks/899.f58cad08740f740b.js"
+    ]
+  }
+}
