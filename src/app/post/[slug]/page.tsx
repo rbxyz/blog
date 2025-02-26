@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { prisma } from "~/server/db";
 import { notFound } from "next/navigation";
-import Navbar from "~/app/components/Navbar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
@@ -20,7 +19,6 @@ export default async function PostPage({ params }: { params: PageParams }) {
 
   return (
     <div>
-      <Navbar />
       <div className="mx-auto max-w-4xl p-4">
         <h1 className="mb-4 text-3xl font-bold">{post.title}</h1>
         {post.imageUrl && (

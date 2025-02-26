@@ -4,11 +4,10 @@ import type { ChangeEvent } from "react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { trpc } from "~/trpc/react";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import Link from "next/link";
-import Image from "next/image";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
@@ -57,6 +56,12 @@ export default function AdminPosts() {
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setForm((prevForm) => ({ ...prevForm, [e.target.name]: e.target.value }));
+  };
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,12 +133,22 @@ export default function AdminPosts() {
             className="w-full rounded border p-2"
             required
           />
+
           <MDEditor
             value={form.content}
             onChange={handleContentChange}
             height={600}
             previewOptions={{ remarkPlugins: [remarkGfm, remarkBreaks] }}
           />
+
+          {/* 🔹 Input para Upload de Imagem */}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="w-full rounded border p-2"
+          />
+
           <button
             type="submit"
             className="rounded bg-blue-500 px-4 py-2 text-white"
@@ -154,13 +169,10 @@ export default function AdminPosts() {
           >
             <div>
               {post.imageUrl && (
-                <Image
-                  src={post.imageUrl}
+                <img
+                  src={post.imageUrl || "/placeholder.svg"}
                   alt={post.title}
-                  width={300}
-                  height={200}
-                  className="mb-4 rounded-lg object-cover"
-                  priority
+                  className="h-24 w-24 rounded object-cover"
                 />
               )}
               <h3 className="text-lg font-bold">{post.title}</h3>
