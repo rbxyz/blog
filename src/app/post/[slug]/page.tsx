@@ -1,43 +1,22 @@
+import type { Metadata } from "next";
 import { prisma } from "~/server/db";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
+import rehypeRaw from "rehype-raw";
 import "~/styles/markdown.css";
 
-// ✅ Correção: Define um tipo explícito para PageProps
-interface PageProps {
-  params: { slug: string };
-}
+// ✅ Corrigindo a tipagem do `params`
+type PageParams = Promise<{ slug: string }>;
 
-// ✅ Mantém `params` síncrono
-export async function generateStaticParams() {
-  const posts = await prisma.post.findMany({ select: { slug: true } });
+export default async function PostPage({ params }: { params: PageParams }) {
+  const { slug } = await params; // 🔹 Aguarda o `params` ser resolvido corretamente
+  if (!slug) return notFound();
 
-  return posts.map((post) => ({ slug: post.slug }));
-}
-
-export default async function PostPage({ params }: PageProps) {
-  console.log("🚀 Renderizando PostPage...");
-  console.log("🔍 Parâmetro `params` recebido:", params);
-
-  const { slug } = params;
-
-  if (!slug) {
-    console.error("❌ Erro: Nenhum slug encontrado.");
-    return notFound();
-  }
-
-  console.log("🔎 Buscando post no banco de dados com slug:", slug);
   const post = await prisma.post.findUnique({ where: { slug } });
 
-  if (!post) {
-    console.error("❌ Erro: Nenhum post encontrado para o slug:", slug);
-    return notFound();
-  }
-
-  console.log("✅ Post encontrado:", post);
+  if (!post) return notFound();
 
   return (
     <div>
@@ -84,4 +63,28 @@ export default async function PostPage({ params }: PageProps) {
       </div>
     </div>
   );
+}
+
+// ✅ Geração estática dos slugs
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  const posts = await prisma.post.findMany({ select: { slug: true } });
+  return posts.map((post) => ({ slug: post.slug }));
+}
+
+// ✅ Metadados dinâmicos para SEO
+export async function generateMetadata({
+  params,
+}: {
+  params: PageParams;
+}): Promise<Metadata> {
+  const { slug } = await params; // 🔹 Aguarda o `params`
+  const post = await prisma.post.findUnique({
+    where: { slug },
+    select: { title: true },
+  });
+
+  return {
+    title: post?.title ?? "Post não encontrado",
+    description: post ? `Leia ${post.title} no Blog.` : "Post não encontrado",
+  };
 }
