@@ -25,10 +25,9 @@ export default async function PostPage({ params }: { params: PageParams }) {
 
         {post.imageUrl && (
           <img
-            src={post.imageUrl}
+            src={post.imageUrl || "/placeholder.svg"}
             alt={post.title}
-            className="mb-4 w-full rounded-lg object-cover"
-            style={{ height: "360px" }}
+            className="h-24 w-24 rounded object-cover"
           />
         )}
 
