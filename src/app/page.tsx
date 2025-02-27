@@ -47,7 +47,7 @@ export default function HomePage() {
                   <img
                     src={post.imageUrl || "/placeholder.svg"}
                     alt={post.title}
-                    className="h-24 w-32 rounded object-cover"
+                    className="h-24 w-full rounded object-cover"
                   />
                 )}
                 <h3 className="font-semibold text-blue-600 hover:underline">
