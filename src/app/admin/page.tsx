@@ -24,7 +24,7 @@ interface PostForm {
   title: string;
   content: string;
   name: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
 }
 
 export default function AdminPosts() {
@@ -65,7 +65,7 @@ export default function AdminPosts() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    let imageUrl = form.imageUrl ?? "";
+    let imageUrl = form.imageUrl ?? ""; // Uso do ?? para garantir que não seja undefined ou null
     if (image) {
       const formData = new FormData();
       formData.append("file", image);
@@ -99,7 +99,7 @@ export default function AdminPosts() {
       title: post.title,
       content: post.content,
       name: post.name,
-      imageUrl: post.imageUrl ?? "",
+      imageUrl: post.imageUrl ?? "", // Atribuindo uma string vazia caso imageUrl seja null ou undefined
     });
   };
 
@@ -143,7 +143,7 @@ export default function AdminPosts() {
           <input
             type="text"
             name="imageUrl"
-            value={form.imageUrl || ""}
+            value={form.imageUrl ?? ""}
             onChange={handleChange}
             placeholder="URL da imagem (opcional)"
             className="w-full rounded border p-2"
