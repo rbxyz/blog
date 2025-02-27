@@ -137,7 +137,7 @@ export default function AdminPosts() {
             onChange={handleContentChange}
             height={600}
             previewOptions={{ remarkPlugins: [remarkGfm, remarkBreaks] }}
-            className="bg-white text-black dark:bg-gray-900 dark:text-white"
+            className="text-black dark:bg-gray-900 dark:text-white"
           />
 
           <input
@@ -146,7 +146,7 @@ export default function AdminPosts() {
             value={form.imageUrl ?? ""}
             onChange={handleChange}
             placeholder="URL da imagem (opcional)"
-            className="w-full rounded border p-2"
+            className="white w-full rounded border p-2 text-black dark:bg-gray-900 dark:text-white"
           />
 
           <button
