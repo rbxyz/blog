@@ -140,11 +140,12 @@ export default function AdminPosts() {
             className="bg-white text-black dark:bg-gray-900 dark:text-white"
           />
 
-          {/* 🔹 Input para Upload de Imagem */}
           <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
+            type="text"
+            name="imageUrl"
+            value={form.imageUrl || ""}
+            onChange={handleChange}
+            placeholder="URL da imagem (opcional)"
             className="w-full rounded border p-2"
           />
 
