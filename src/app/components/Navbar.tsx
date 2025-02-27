@@ -41,6 +41,9 @@ export default function Navbar() {
 
         {/* Renderizar link Admin se o usuário estiver autorizado */}
         {adminLink}
+        <Link href="https://www.ruanbueno.cloud/" className="hover:underline">
+          Portifólio
+        </Link>
       </div>
 
       <div className="flex items-center space-x-4">
