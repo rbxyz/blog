@@ -44,13 +44,10 @@ export default function HomePage() {
                 className="block rounded border p-3 hover:bg-gray-100"
               >
                 {post.imageUrl && (
-                  <Image
-                    src={post.imageUrl}
+                  <img
+                    src={post.imageUrl || "/placeholder.svg"}
                     alt={post.title}
-                    width={300}
-                    height={200}
-                    className="mb-2 h-40 w-full rounded-md object-cover"
-                    priority
+                    className="h-24 w-24 rounded object-cover"
                   />
                 )}
                 <h3 className="font-semibold text-blue-600 hover:underline">
