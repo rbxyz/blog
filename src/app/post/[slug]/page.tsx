@@ -27,7 +27,9 @@ export default async function PostPage({ params }: { params: PageParams }) {
           <img
             src={post.imageUrl || "/placeholder.svg"}
             alt={post.title}
-            className="h-24 w-24 rounded object-cover"
+            width={700}
+            height={500}
+            className="rounded object-cover"
           />
         )}
 
