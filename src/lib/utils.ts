@@ -27,7 +27,7 @@ export function stripMarkdown(text: string): string {
         .trim();
 }
 
-export function createExcerpt(text: string, maxLength: number = 150): string {
+export function createExcerpt(text: string, maxLength = 150): string {
     const cleanText = stripMarkdown(text);
 
     if (cleanText.length <= maxLength) {

@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import { authenticateUser } from '~/lib/auth';
 import { z } from 'zod';
 
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
 
         if (error instanceof z.ZodError) {
             return NextResponse.json(
-                { error: error.errors[0]?.message || 'Dados inválidos' },
+                { error: error.errors[0]?.message ?? 'Dados inválidos' },
                 { status: 400 }
             );
         }

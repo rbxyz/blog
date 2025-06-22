@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Mail, Lock, LogIn, ArrowLeft } from 'lucide-react';
@@ -39,14 +39,14 @@ export default function LoginPage() {
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      const data = await response.json() as { error?: string };
 
       if (response.ok) {
         // Login bem-sucedido
         router.push('/');
         router.refresh();
       } else {
-        setError(data.error || 'Erro no login');
+        setError(data.error ?? 'Erro no login');
       }
     } catch (error) {
       console.error('Erro no login:', error);

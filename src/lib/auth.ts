@@ -6,7 +6,7 @@ import { Role } from '@prisma/client';
 import type { User } from '@prisma/client';
 
 // Configurações
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET ?? 'your-secret-key-change-in-production';
 const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 dias em ms
 
 // Tipos
@@ -78,7 +78,7 @@ export async function validateSession(token: string): Promise<SessionUser | null
     try {
         // Verificar token JWT
         const payload = await verifyToken(token);
-        if (!payload || !payload.userId) {
+        if (!payload ?? !payload.userId) {
             return null;
         }
 
@@ -99,7 +99,7 @@ export async function validateSession(token: string): Promise<SessionUser | null
         });
 
         // Verificar se a sessão existe e não expirou
-        if (!session || session.expiresAt < new Date()) {
+        if (!session ?? session.expiresAt < new Date()) {
             // Limpar sessão expirada
             if (session) {
                 await prisma.session.delete({ where: { id: session.id } });
@@ -266,22 +266,22 @@ export function isAdmin(user: SessionUser): boolean {
 
 // Verificar se pode editar (admin ou editor)
 export function canEdit(user: SessionUser): boolean {
-    return user.role === 'ADMIN' || user.role === 'EDITOR';
+    return user.role === 'ADMIN' ?? user.role === 'EDITOR';
 }
 
 // Validar apenas JWT (para usar no middleware Edge Runtime)
 export async function validateJWT(token: string): Promise<{ userId: string; email: string; role: string } | null> {
     try {
         const payload = await verifyToken(token);
-        if (!payload || !payload.userId) {
+        if (!payload ?? !payload.userId) {
             return null;
         }
 
         // Retornar apenas os dados do JWT, sem consultar o banco
         return {
             userId: payload.userId,
-            email: payload.email || '',
-            role: payload.role || 'USER'
+            email: payload.email ?? '',
+            role: payload.role ?? 'USER'
         };
     } catch (error) {
         console.error('Erro ao validar JWT:', error);

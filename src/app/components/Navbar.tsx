@@ -21,7 +21,7 @@ export default function Navbar() {
 
   // Verificar autenticação
   useEffect(() => {
-    checkAuth();
+    void checkAuth();
   }, []);
 
   const checkAuth = async () => {
@@ -32,7 +32,7 @@ export default function Navbar() {
       });
 
       if (response.ok) {
-        const userData = await response.json();
+        const userData = await response.json() as { user: User };
         setUser(userData.user);
       } else {
         setUser(null);
@@ -150,14 +150,14 @@ export default function Navbar() {
                   <div className="flex items-center space-x-2 glass-card rounded-xl px-3 py-2 hover:shadow-glow transition-all duration-300">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center">
                       {user.avatar ? (
-                        <img src={user.avatar} alt={user.name || user.email} className="w-8 h-8 rounded-full" />
+                        <img src={user.avatar} alt={user.name ?? user.email} className="w-8 h-8 rounded-full" />
                       ) : (
                         <User className="w-4 h-4 text-white" />
                       )}
                     </div>
                     <div className="hidden lg:block">
                       <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        {user.name || user.email.split('@')[0]}
+                        {user.name ?? user.email.split('@')[0]}
                       </p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">
                         {user.role}

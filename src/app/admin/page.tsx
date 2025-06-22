@@ -60,11 +60,11 @@ export default function AdminPage() {
   };
 
   // Calcular estatísticas
-  const totalPosts = posts?.length || 0;
-  const publishedPosts = posts?.filter(post => post.published).length || 0;
-  const totalViews = posts?.reduce((sum, post) => sum + (post.viewCount || 0), 0) || 0;
-  const totalComments = comments?.length || 0;
-  const activeComments = comments?.filter(comment => !comment.isDeleted).length || 0;
+  const totalPosts = posts?.length ?? 0;
+  const publishedPosts = posts?.filter(post => post.published).length ?? 0;
+  const totalViews = posts?.reduce((sum, post) => sum + (post.viewCount ?? 0), 0) ?? 0;
+  const totalComments = comments?.length ?? 0;
+  const activeComments = comments?.filter(comment => !comment.isDeleted).length ?? 0;
 
   const tabs = [
     { id: "overview", label: "Visão Geral", icon: TrendingUp },
@@ -199,7 +199,7 @@ export default function AdminPage() {
                         {post.published ? "Publicado" : "Rascunho"}
                       </span>
                       <span className="text-sm text-slate-500 dark:text-slate-400">
-                        {post.viewCount || 0} views
+                        {post.viewCount ?? 0} views
                       </span>
                     </div>
                   </div>
@@ -278,7 +278,7 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="p-4 text-slate-600 dark:text-slate-400">
-                          {post.viewCount || 0}
+                          {post.viewCount ?? 0}
                         </td>
                         <td className="p-4 text-slate-600 dark:text-slate-400">
                           {new Date(post.createdAt).toLocaleDateString('pt-BR')}
@@ -353,7 +353,7 @@ export default function AdminPage() {
                       </div>
                       <div>
                         <p className="font-medium text-slate-800 dark:text-slate-200">
-                          {comment.author.name || comment.author.email.split('@')[0]}
+                          {comment.author.name ?? comment.author.email.split('@')[0]}
                         </p>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
                           {comment.author.email}

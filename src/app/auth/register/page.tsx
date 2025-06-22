@@ -71,7 +71,7 @@ export default function RegisterPage() {
         router.push('/');
         router.refresh();
       } else {
-        setError(data.error || 'Erro no registro');
+        setError(data.error ?? 'Erro no registro');
       }
     } catch (error) {
       console.error('Erro no registro:', error);
@@ -284,7 +284,7 @@ export default function RegisterPage() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading || !isPasswordValid}
+              disabled={loading ?? !isPasswordValid}
               className="group relative w-full inline-flex items-center justify-center space-x-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 shadow-lg group-hover:shadow-glow transition-all duration-300"></div>

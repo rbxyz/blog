@@ -19,7 +19,7 @@ export default function ShareButton({ slug, title }: ShareButtonProps) {
           url: url,
         });
         return;
-      } catch (error) {
+      } catch {
         // Se o usuário cancelar ou houver erro, continua para clipboard
       }
     }
@@ -40,7 +40,7 @@ export default function ShareButton({ slug, title }: ShareButtonProps) {
           span.classList.remove('text-green-600');
         }, 2000);
       }
-    } catch (error) {
+    } catch {
       // Fallback mais antigo para navegadores sem clipboard API
       const textArea = document.createElement('textarea');
       textArea.value = url;

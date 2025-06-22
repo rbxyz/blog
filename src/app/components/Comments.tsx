@@ -61,7 +61,7 @@ export default function Comments({ postId, user }: CommentsProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || !user) return;
+    if (!newComment.trim() ?? !user) return;
 
     createMutation.mutate({
       content: newComment.trim(),
@@ -91,7 +91,7 @@ export default function Comments({ postId, user }: CommentsProps) {
 
   const canEditDelete = (comment: Comment) => {
     if (!user) return false;
-    return comment.author.id === user.id || user.role === "ADMIN";
+    return comment.author.id === user.id ?? user.role === "ADMIN";
   };
 
   return (
@@ -100,7 +100,7 @@ export default function Comments({ postId, user }: CommentsProps) {
       <div className="flex items-center space-x-2">
         <MessageCircle className="w-6 h-6 text-primary-600 dark:text-primary-400" />
         <h3 className="text-2xl font-bold gradient-text">
-          Comentários ({comments?.length || 0})
+          Comentários ({comments?.length ?? 0})
         </h3>
       </div>
 
@@ -110,14 +110,14 @@ export default function Comments({ postId, user }: CommentsProps) {
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center">
               {user.avatar ? (
-                <img src={user.avatar} alt={user.name || user.email} className="w-10 h-10 rounded-full" />
+                <img src={user.avatar} alt={user.name ?? user.email} className="w-10 h-10 rounded-full" />
               ) : (
                 <User className="w-5 h-5 text-white" />
               )}
             </div>
             <div>
               <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {user.name || user.email.split('@')[0]}
+                {user.name ?? user.email.split('@')[0]}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Comentando como {user.role}
@@ -139,7 +139,7 @@ export default function Comments({ postId, user }: CommentsProps) {
             </span>
             <button
               type="submit"
-              disabled={!newComment.trim() || createMutation.isPending}
+              disabled={!newComment.trim() ?? createMutation.isPending}
               className="group relative px-6 py-2 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-medium transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center space-x-2"
             >
               <Send className="w-4 h-4" />
@@ -172,7 +172,7 @@ export default function Comments({ postId, user }: CommentsProps) {
                   {comment.author.avatar ? (
                     <img 
                       src={comment.author.avatar} 
-                      alt={comment.author.name || comment.author.email} 
+                      alt={comment.author.name ?? comment.author.email} 
                       className="w-10 h-10 rounded-full" 
                     />
                   ) : (
@@ -181,7 +181,7 @@ export default function Comments({ postId, user }: CommentsProps) {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    {comment.author.name || comment.author.email.split('@')[0]}
+                    {comment.author.name ?? comment.author.email.split('@')[0]}
                   </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     {new Date(comment.createdAt).toLocaleDateString('pt-BR', {
@@ -232,7 +232,7 @@ export default function Comments({ postId, user }: CommentsProps) {
                   </button>
                   <button
                     onClick={() => handleUpdate(comment.id)}
-                    disabled={!editContent.trim() || updateMutation.isPending}
+                    disabled={!editContent.trim() ?? updateMutation.isPending}
                     className="px-4 py-2 rounded-lg bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-medium transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
                     {updateMutation.isPending ? "Salvando..." : "Salvar"}

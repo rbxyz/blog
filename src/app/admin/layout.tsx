@@ -18,10 +18,10 @@ export default async function AdminLayout({
   try {
     const user = await validateSession(sessionToken);
     
-    if (!user || user.role !== 'ADMIN') {
+    if (!user ?? user.role !== 'ADMIN') {
       redirect("/");
     }
-  } catch (error) {
+  } catch {
     redirect("/auth/login?redirect=/admin");
   }
 

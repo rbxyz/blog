@@ -33,7 +33,7 @@ export default function EditPostPage() {
 
   // Mutation para atualizar post
   const updatePostMutation = api.post.update.useMutation({
-    onSuccess: (data) => {
+    onSuccess: () => {
       router.push(`/admin?tab=posts&success=Post atualizado com sucesso!`);
     },
     onError: (error) => {
@@ -46,9 +46,9 @@ export default function EditPostPage() {
   useEffect(() => {
     if (post) {
       setFormData({
-        title: post.title || "",
-        content: post.content || "",
-        imageUrl: post.imageUrl || "",
+        title: post.title ?? "",
+        content: post.content ?? "",
+        imageUrl: post.imageUrl ?? "",
       });
       setIsLoading(false);
     }
@@ -78,7 +78,7 @@ export default function EditPostPage() {
         throw new Error("Erro no upload da imagem");
       }
 
-      const { imageUrl } = await response.json();
+      const { imageUrl } = await response.json() as { imageUrl: string };
       handleInputChange("imageUrl", imageUrl);
     } catch (error) {
       console.error("Erro no upload:", error);
@@ -110,7 +110,7 @@ export default function EditPostPage() {
     handleInputChange("content", newText);
     
     // Restaurar posição do cursor
-    setTimeout(() => {
+    void setTimeout(() => {
       textarea.focus();
       textarea.setSelectionRange(
         start + before.length, 
@@ -122,7 +122,7 @@ export default function EditPostPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.title.trim() || !formData.content.trim()) {
+    if (!formData.title.trim() ?? !formData.content.trim()) {
       alert("Título e conteúdo são obrigatórios!");
       return;
     }
@@ -131,7 +131,7 @@ export default function EditPostPage() {
       id: postId,
       title: formData.title.trim(),
       content: formData.content.trim(),
-      imageUrl: formData.imageUrl || undefined,
+      imageUrl: formData.imageUrl ?? undefined,
     });
   };
 
@@ -152,7 +152,7 @@ export default function EditPostPage() {
         throw new Error("Erro no upload da imagem");
       }
 
-      const { imageUrl } = await response.json();
+      const { imageUrl } = await response.json() as { imageUrl: string };
       
       // Inserir a imagem na posição atual do cursor
       const textarea = document.getElementById("content-textarea") as HTMLTextAreaElement;
@@ -169,7 +169,7 @@ export default function EditPostPage() {
         handleInputChange("content", newContent);
         
         // Posicionar cursor após a imagem inserida
-        setTimeout(() => {
+        void setTimeout(() => {
           textarea.focus();
           textarea.setSelectionRange(
             start + imageMarkdown.length, 
@@ -210,7 +210,7 @@ export default function EditPostPage() {
     { icon: Hash, action: () => insertMarkdown("## "), title: "Cabeçalho" },
   ];
 
-  if (postLoading || isLoading) {
+  if (postLoading ?? isLoading) {
     return (
       <div className="min-h-screen pt-20 pb-12 px-6 flex items-center justify-center">
         <div className="text-center">
@@ -339,11 +339,8 @@ export default function EditPostPage() {
                   <div className="absolute -inset-2 bg-gradient-to-r from-primary-500/20 to-secondary-500/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <img
                     src={formData.imageUrl}
-                    alt="Preview"
+                    alt="Preview da imagem de capa"
                     className="relative w-full max-h-64 object-cover rounded-xl shadow-lg transition-transform duration-500 group-hover:scale-[1.02]"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
                   />
                 </div>
               )}
@@ -388,7 +385,7 @@ export default function EditPostPage() {
                     const files = Array.from(e.dataTransfer.files);
                     const imageFile = files.find(file => file.type.startsWith('image/'));
                     if (imageFile) {
-                      handleInlineImageUpload(imageFile);
+                      void handleInlineImageUpload(imageFile);
                     }
                   }}
                   onDragOver={(e) => {
@@ -406,7 +403,7 @@ export default function EditPostPage() {
                       e.preventDefault();
                       const file = imageItem.getAsFile();
                       if (file) {
-                        handleInlineImageUpload(file);
+                        void handleInlineImageUpload(file);
                       }
                     }
                   }}
@@ -434,7 +431,7 @@ export default function EditPostPage() {
                             <div className="my-8 text-center">
                               <img 
                                 src={src} 
-                                alt={alt || 'Imagem'}
+                                alt={alt ?? 'Imagem'}
                                 className="rounded-xl shadow-lg max-w-full mx-auto block"
                                 style={{ maxWidth: '100%', height: 'auto' }}
                               />
@@ -447,7 +444,7 @@ export default function EditPostPage() {
                           ),
                         }}
                       >
-                        {formData.content || "*Preview do conteúdo aparecerá aqui...*"}
+                        {formData.content ?? "*Preview do conteúdo aparecerá aqui...*"}
                       </ReactMarkdown>
                     </div>
                   </div>
@@ -467,7 +464,7 @@ export default function EditPostPage() {
             
             <button
               type="submit"
-              disabled={updatePostMutation.isPending || !formData.title.trim() || !formData.content.trim()}
+              disabled={updatePostMutation.isPending ?? !formData.title.trim() ?? !formData.content.trim()}
               className="group relative px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 shadow-lg group-hover:shadow-glow"></div>

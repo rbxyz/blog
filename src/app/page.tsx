@@ -85,7 +85,7 @@ export default function HomePage() {
                 <div className="flex items-center space-x-4 text-sm">
                   <div className="flex items-center space-x-1">
                     <BookOpen className="w-4 h-4 text-primary-500" />
-                    <span className="text-slate-600 dark:text-slate-400">{recentPosts?.length || 0} artigos</span>
+                    <span className="text-slate-600 dark:text-slate-400">{recentPosts?.length ?? 0} artigos</span>
                   </div>
                   <div className="w-1 h-1 rounded-full bg-slate-400"></div>
                   <div className="flex items-center space-x-1">
@@ -151,7 +151,7 @@ export default function HomePage() {
                       </h3>
                       
                       <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-3 flex-grow leading-relaxed">
-                        {createExcerpt(post.content || '', 150)}
+                        {createExcerpt(post.content ?? '', 150)}
                       </p>
                       
                       {/* Meta info */}

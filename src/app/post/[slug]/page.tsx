@@ -30,7 +30,7 @@ export default async function PostPage({ params }: { params: PageParams }) {
   const user = sessionToken ? await validateSession(sessionToken) : null;
 
   // Estimativa de tempo de leitura (250 palavras por minuto)
-  const wordCount = post.content?.split(' ').length || 0;
+  const wordCount = post.content?.split(' ').length ?? 0;
   const readingTime = Math.ceil(wordCount / 250);
 
   return (
@@ -180,7 +180,7 @@ export default async function PostPage({ params }: { params: PageParams }) {
                     <div className="my-8 text-center">
                       <img 
                         src={src} 
-                        alt={alt || 'Imagem'}
+                        alt={alt ?? 'Imagem'}
                         className="rounded-xl shadow-lg max-w-full mx-auto block"
                         style={{ maxWidth: '100%', height: 'auto' }}
                       />

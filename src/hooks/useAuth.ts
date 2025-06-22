@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter();
 
     useEffect(() => {
-        checkAuth();
+        void checkAuth();
     }, []);
 
     const checkAuth = async () => {
@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             });
 
             if (response.ok) {
-                const userData = await response.json();
+                const userData = await response.json() as { user: SessionUser };
                 setUser(userData.user);
             } else {
                 setUser(null);
@@ -66,14 +66,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await response.json();
+            const data = await response.json() as { user?: SessionUser; error?: string };
 
             if (response.ok) {
-                setUser(data.user);
+                setUser(data.user as SessionUser);
                 router.push('/');
                 return { success: true };
             } else {
-                return { success: false, error: data.error || 'Erro no login' };
+                return { success: false, error: data.error ?? 'Erro no login' };
             }
         } catch (error) {
             console.error('Erro no login:', error);
@@ -92,14 +92,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 body: JSON.stringify({ email, password, name }),
             });
 
-            const data = await response.json();
+            const data = await response.json() as { user?: SessionUser; error?: string };
 
             if (response.ok) {
-                setUser(data.user);
+                setUser(data.user as SessionUser);
                 router.push('/');
                 return { success: true };
             } else {
-                return { success: false, error: data.error || 'Erro no registro' };
+                return { success: false, error: data.error ?? 'Erro no registro' };
             }
         } catch (error) {
             console.error('Erro no registro:', error);
@@ -123,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const isAuthenticated = !!user;
     const isAdmin = user?.role === 'ADMIN';
-    const canEdit = user?.role === 'ADMIN' || user?.role === 'EDITOR';
+    const canEdit = user?.role === 'ADMIN' ?? user?.role === 'EDITOR';
 
     const value: AuthContextType = {
         user,

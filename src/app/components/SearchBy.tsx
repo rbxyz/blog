@@ -127,7 +127,7 @@ export default function SearchBy() {
               )}
 
               {/* No Results State */}
-              {query.length >= 3 && !isLoading && (!results || results.length === 0) && (
+              {query.length >= 3 && !isLoading && (!results ?? results.length === 0) && (
                 <div className="p-6 text-center">
                   <FileText className="w-8 h-8 text-slate-400 mx-auto mb-3" />
                   <p className="text-slate-600 dark:text-slate-400 font-medium mb-1">
@@ -142,7 +142,7 @@ export default function SearchBy() {
               {/* Results */}
               {results && results.length > 0 && (
                 <div className="max-h-80 overflow-y-auto">
-                  {results.map((post: Post, index) => (
+                  {results.map((post: Post) => (
                     <Link
                       key={post.id}
                       href={`/post/${post.slug}`}
@@ -172,7 +172,7 @@ export default function SearchBy() {
                           </h3>
                           
                           <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2 mb-2">
-                            {createExcerpt(post.content || '', 100)}
+                            {createExcerpt(post.content ?? '', 100)}
                           </p>
 
                           <div className="flex items-center space-x-4 text-xs text-slate-500 dark:text-slate-500">

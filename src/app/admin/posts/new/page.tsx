@@ -68,7 +68,7 @@ export default function NewPostPage() {
 
   const handleInputChange = (field: string, value: string) => {
     // Só loga mudanças nos campos principais
-    if (field === 'title' || field === 'imageUrl') {
+    if (field === 'title' ?? field === 'imageUrl') {
       console.log(`📝 ${field} alterado:`, value);
     }
     setFormData(prev => ({
@@ -141,7 +141,7 @@ export default function NewPostPage() {
     console.log("📝 handleSubmit chamado!");
     console.log("📋 Dados do formulário:", formData);
     
-    if (!formData.title.trim() || !formData.content.trim()) {
+    if (!formData.title.trim() ?? !formData.content.trim()) {
       console.log("❌ Validação falhou - título ou conteúdo vazio");
       alert("Título e conteúdo são obrigatórios!");
       return;
@@ -152,7 +152,7 @@ export default function NewPostPage() {
     const postData = {
       title: formData.title.trim(),
       content: formData.content.trim(),
-      imageUrl: formData.imageUrl || undefined,
+      imageUrl: formData.imageUrl ?? undefined,
     };
 
     console.log("🚀 Tentando criar post com dados:", postData);
@@ -494,7 +494,7 @@ const exemplo = 'código';
                             <div className="my-8 text-center">
                               <img 
                                 src={src} 
-                                alt={alt || 'Imagem'}
+                                alt={alt ?? 'Imagem'}
                                 className="rounded-xl shadow-lg max-w-full mx-auto block"
                                 style={{ maxWidth: '100%', height: 'auto' }}
                               />
@@ -507,7 +507,7 @@ const exemplo = 'código';
                           ),
                         }}
                       >
-                        {formData.content || "*Preview do conteúdo aparecerá aqui...*"}
+                        {formData.content ?? "*Preview do conteúdo aparecerá aqui...*"}
                       </ReactMarkdown>
                     </div>
                   </div>
@@ -568,13 +568,13 @@ const exemplo = 'código';
 
             <button
               type="button"
-              disabled={createPostMutation.isPending || !formData.title.trim() || !formData.content.trim()}
+              disabled={createPostMutation.isPending ?? !formData.title.trim() ?? !formData.content.trim()}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log("🎯 Botão Criar Post clicado DIRETAMENTE!");
                 
-                if (!formData.title.trim() || !formData.content.trim()) {
+                if (!formData.title.trim() ?? !formData.content.trim()) {
                   alert("Título e conteúdo são obrigatórios!");
                   return;
                 }
@@ -582,7 +582,7 @@ const exemplo = 'código';
                 const postData = {
                   title: formData.title.trim(),
                   content: formData.content.trim(),
-                  imageUrl: formData.imageUrl || undefined,
+                  imageUrl: formData.imageUrl ?? undefined,
                 };
 
                 console.log("🚀 Chamando mutation DIRETAMENTE:", postData);
