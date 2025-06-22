@@ -122,12 +122,12 @@ export default function EditPostPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.title.trim() ?? !formData.content.trim()) {
+    if (!formData.title.trim() || !formData.content.trim()) {
       alert("Título e conteúdo são obrigatórios!");
       return;
     }
 
-    updatePostMutation.mutate({
+    void updatePostMutation.mutate({
       id: postId,
       title: formData.title.trim(),
       content: formData.content.trim(),

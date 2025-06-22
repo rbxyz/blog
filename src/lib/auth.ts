@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 import { SignJWT, jwtVerify } from 'jose';
 import { prisma } from '~/server/db';
 import { Role } from '@prisma/client';
-import type { User } from '@prisma/client';
 
 // Configurações
 const JWT_SECRET = process.env.JWT_SECRET ?? 'your-secret-key-change-in-production';
@@ -35,7 +34,7 @@ export async function verifyPassword(password: string, hashedPassword: string): 
 }
 
 // Gerar token JWT
-export async function generateToken(payload: any): Promise<string> {
+export async function generateToken(payload: Record<string, unknown>): Promise<string> {
     const secret = new TextEncoder().encode(JWT_SECRET);
     const alg = 'HS256';
 
@@ -47,12 +46,12 @@ export async function generateToken(payload: any): Promise<string> {
 }
 
 // Verificar token JWT
-export async function verifyToken(token: string): Promise<any> {
+export async function verifyToken(token: string): Promise<Record<string, unknown> | null> {
     try {
         const secret = new TextEncoder().encode(JWT_SECRET);
         const { payload } = await jwtVerify(token, secret);
         return payload;
-    } catch (error) {
+    } catch {
         return null;
     }
 }
@@ -78,7 +77,7 @@ export async function validateSession(token: string): Promise<SessionUser | null
     try {
         // Verificar token JWT
         const payload = await verifyToken(token);
-        if (!payload ?? !payload.userId) {
+        if (!payload?.userId) {
             return null;
         }
 
@@ -99,7 +98,7 @@ export async function validateSession(token: string): Promise<SessionUser | null
         });
 
         // Verificar se a sessão existe e não expirou
-        if (!session ?? session.expiresAt < new Date()) {
+        if (!session || session.expiresAt < new Date()) {
             // Limpar sessão expirada
             if (session) {
                 await prisma.session.delete({ where: { id: session.id } });
@@ -266,22 +265,22 @@ export function isAdmin(user: SessionUser): boolean {
 
 // Verificar se pode editar (admin ou editor)
 export function canEdit(user: SessionUser): boolean {
-    return user.role === 'ADMIN' ?? user.role === 'EDITOR';
+    return user.role === 'ADMIN' || user.role === 'EDITOR';
 }
 
 // Validar apenas JWT (para usar no middleware Edge Runtime)
 export async function validateJWT(token: string): Promise<{ userId: string; email: string; role: string } | null> {
     try {
         const payload = await verifyToken(token);
-        if (!payload ?? !payload.userId) {
+        if (!payload?.userId) {
             return null;
         }
 
         // Retornar apenas os dados do JWT, sem consultar o banco
         return {
-            userId: payload.userId,
-            email: payload.email ?? '',
-            role: payload.role ?? 'USER'
+            userId: payload.userId as string,
+            email: (payload.email as string) ?? '',
+            role: (payload.role as string) ?? 'USER'
         };
     } catch (error) {
         console.error('Erro ao validar JWT:', error);

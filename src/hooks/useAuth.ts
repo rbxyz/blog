@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const data = await response.json() as { user?: SessionUser; error?: string };
 
             if (response.ok) {
-                setUser(data.user as SessionUser);
+                setUser(data.user!);
                 router.push('/');
                 return { success: true };
             } else {
@@ -95,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const data = await response.json() as { user?: SessionUser; error?: string };
 
             if (response.ok) {
-                setUser(data.user as SessionUser);
+                setUser(data.user!);
                 router.push('/');
                 return { success: true };
             } else {
@@ -123,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const isAuthenticated = !!user;
     const isAdmin = user?.role === 'ADMIN';
-    const canEdit = user?.role === 'ADMIN' ?? user?.role === 'EDITOR';
+    const canEdit = user?.role === 'ADMIN' || user?.role === 'EDITOR';
 
     const value: AuthContextType = {
         user,

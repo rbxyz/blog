@@ -39,23 +39,23 @@ export default function AdminPage() {
 
   const handleDeletePost = (id: string) => {
     if (confirm("Tem certeza que deseja deletar este post?")) {
-      deletePostMutation.mutate({ id });
+      void deletePostMutation.mutate({ id });
     }
   };
 
   const handleTogglePublish = (id: string, published: boolean) => {
-    togglePublishMutation.mutate({ id, published: !published });
+    void togglePublishMutation.mutate({ id, published: !published });
   };
 
   const handleDeleteComment = (id: string) => {
     if (confirm("Tem certeza que deseja deletar este comentário?")) {
-      deleteCommentMutation.mutate({ id });
+      void deleteCommentMutation.mutate({ id });
     }
   };
 
   const handleRestoreComment = (id: string) => {
     if (confirm("Tem certeza que deseja restaurar este comentário?")) {
-      restoreCommentMutation.mutate({ id });
+      void restoreCommentMutation.mutate({ id });
     }
   };
 

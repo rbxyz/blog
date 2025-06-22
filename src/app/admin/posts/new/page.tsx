@@ -22,6 +22,10 @@ export default function NewPostPage() {
   
   const [showPreview, setShowPreview] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [session, setSession] = useState<{ user: { name?: string } } | null>(null);
+  const [user, setUser] = useState<{ name?: string } | null>(null);
 
   // Teste de autenticação
   useEffect(() => {
@@ -30,17 +34,17 @@ export default function NewPostPage() {
         const response = await fetch('/api/auth/me', {
           credentials: 'include'
         });
-        const data = await response.json();
+        const data = await response.json() as { user?: any };
         console.log("🔐 Status de autenticação:", {
           status: response.status,
           authenticated: response.ok,
-          user: data.user
+          user: data.user ?? null
         });
       } catch (error) {
         console.error("❌ Erro ao verificar autenticação:", error);
       }
     };
-    testAuth();
+    void testAuth();
   }, []);
 
   // Mutation para criar post
@@ -68,7 +72,7 @@ export default function NewPostPage() {
 
   const handleInputChange = (field: string, value: string) => {
     // Só loga mudanças nos campos principais
-    if (field === 'title' ?? field === 'imageUrl') {
+    if (field === 'title' || field === 'imageUrl') {
       console.log(`📝 ${field} alterado:`, value);
     }
     setFormData(prev => ({
@@ -141,7 +145,7 @@ export default function NewPostPage() {
     console.log("📝 handleSubmit chamado!");
     console.log("📋 Dados do formulário:", formData);
     
-    if (!formData.title.trim() ?? !formData.content.trim()) {
+    if (!formData.title.trim() || !formData.content.trim()) {
       console.log("❌ Validação falhou - título ou conteúdo vazio");
       alert("Título e conteúdo são obrigatórios!");
       return;
@@ -165,7 +169,7 @@ export default function NewPostPage() {
 
     try {
       console.log("🔄 Chamando createPostMutation.mutate...");
-      createPostMutation.mutate(postData);
+      void createPostMutation.mutate(postData);
       console.log("✅ Mutation chamada com sucesso");
     } catch (error) {
       console.error("❌ Erro ao chamar mutation:", error);
@@ -507,7 +511,7 @@ const exemplo = 'código';
                           ),
                         }}
                       >
-                        {formData.content ?? "*Preview do conteúdo aparecerá aqui...*"}
+                        {formData.content || "*Preview do conteúdo aparecerá aqui...*"}
                       </ReactMarkdown>
                     </div>
                   </div>
@@ -555,7 +559,7 @@ const exemplo = 'código';
                   console.log("🧪 Testando com dados fake:", testData);
                   
                   try {
-                    createPostMutation.mutate(testData);
+                    void createPostMutation.mutate(testData);
                     console.log("✅ Mutation de teste chamada");
                   } catch (error) {
                     console.error("❌ Erro no teste:", error);
@@ -568,13 +572,13 @@ const exemplo = 'código';
 
             <button
               type="button"
-              disabled={createPostMutation.isPending ?? !formData.title.trim() ?? !formData.content.trim()}
+              disabled={createPostMutation.isPending || !formData.title.trim() || !formData.content.trim()}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log("🎯 Botão Criar Post clicado DIRETAMENTE!");
                 
-                if (!formData.title.trim() ?? !formData.content.trim()) {
+                if (!formData.title.trim() || !formData.content.trim()) {
                   alert("Título e conteúdo são obrigatórios!");
                   return;
                 }
@@ -586,7 +590,7 @@ const exemplo = 'código';
                 };
 
                 console.log("🚀 Chamando mutation DIRETAMENTE:", postData);
-                createPostMutation.mutate(postData);
+                void createPostMutation.mutate(postData);
               }}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >

@@ -64,14 +64,14 @@ export default function RegisterPage() {
         }),
       });
 
-      const data = await response.json();
+      const data = await response.json() as { user?: any; error?: string };
 
       if (response.ok) {
         // Registro bem-sucedido
         router.push('/');
         router.refresh();
       } else {
-        setError(data.error ?? 'Erro no registro');
+        setError(data.error ?? 'Erro desconhecido');
       }
     } catch (error) {
       console.error('Erro no registro:', error);

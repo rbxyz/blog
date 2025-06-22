@@ -27,7 +27,7 @@ export function LatestPost() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          createPost.mutate({
+          void createPost.mutate({
             title: name,
             content: "",
           });

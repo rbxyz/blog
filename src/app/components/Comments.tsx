@@ -61,9 +61,9 @@ export default function Comments({ postId, user }: CommentsProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() ?? !user) return;
+    if (!newComment.trim() || !user) return;
 
-    createMutation.mutate({
+    void createMutation.mutate({
       content: newComment.trim(),
       postId,
     });
@@ -77,7 +77,7 @@ export default function Comments({ postId, user }: CommentsProps) {
   const handleUpdate = (commentId: string) => {
     if (!editContent.trim()) return;
 
-    updateMutation.mutate({
+    void updateMutation.mutate({
       id: commentId,
       content: editContent.trim(),
     });
@@ -85,13 +85,13 @@ export default function Comments({ postId, user }: CommentsProps) {
 
   const handleDelete = (commentId: string) => {
     if (confirm("Tem certeza que deseja deletar este comentário?")) {
-      deleteMutation.mutate({ id: commentId });
+      void deleteMutation.mutate({ id: commentId });
     }
   };
 
   const canEditDelete = (comment: Comment) => {
     if (!user) return false;
-    return comment.author.id === user.id ?? user.role === "ADMIN";
+    return comment.author.id === user.id || user.role === "ADMIN";
   };
 
   return (
@@ -139,7 +139,7 @@ export default function Comments({ postId, user }: CommentsProps) {
             </span>
             <button
               type="submit"
-              disabled={!newComment.trim() ?? createMutation.isPending}
+              disabled={!newComment.trim() || createMutation.isPending}
               className="group relative px-6 py-2 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-medium transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center space-x-2"
             >
               <Send className="w-4 h-4" />
@@ -232,7 +232,7 @@ export default function Comments({ postId, user }: CommentsProps) {
                   </button>
                   <button
                     onClick={() => handleUpdate(comment.id)}
-                    disabled={!editContent.trim() ?? updateMutation.isPending}
+                    disabled={!editContent.trim() || updateMutation.isPending}
                     className="px-4 py-2 rounded-lg bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-medium transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
                     {updateMutation.isPending ? "Salvando..." : "Salvar"}
