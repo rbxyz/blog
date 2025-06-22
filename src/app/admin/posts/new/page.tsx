@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { api } from "~/trpc/react";
 import { ArrowLeft, Upload, Eye, EyeOff, Save, FileText, Image, Bold, Italic, Code, Link as LinkIcon, List, ListOrdered, Quote, Hash } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
 
 export default function NewPostPage() {
-  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
@@ -20,57 +18,25 @@ export default function NewPostPage() {
     imageUrl: "",
   });
   
-      const [showPreview, setShowPreview] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
-  // Teste de autenticação
-  useEffect(() => {
-    const testAuth = async () => {
-      try {
-        const response = await fetch('/api/auth/me', {
-          credentials: 'include'
-        });
-        const data = await response.json() as { user?: { name?: string } };
-        console.log("🔐 Status de autenticação:", {
-          status: response.status,
-          authenticated: response.ok,
-          user: data.user ?? null
-        });
-      } catch (error) {
-        console.error("❌ Erro ao verificar autenticação:", error);
-      }
-    };
-    void testAuth();
-  }, []);
-
-  // Mutation para criar post
+  // Create post mutation
   const createPostMutation = api.post.create.useMutation({
-    onMutate: (variables) => {
-      console.log("🔄 onMutate - Iniciando mutation com dados:", variables);
-    },
     onSuccess: (data) => {
-      console.log("✅ onSuccess - Post criado com sucesso:", data);
+      console.log("✅ Post criado com sucesso:", data);
       alert("Post criado com sucesso!");
-      router.push(`/admin?tab=posts&success=Post criado com sucesso!`);
+      
+      // Redirecionar para a página de admin ou do post
+      window.location.href = "/admin";
     },
     onError: (error) => {
-      console.error("❌ onError - Erro detalhado ao criar post:", {
-        message: error.message,
-        data: error.data,
-        shape: error.shape
-      });
-      alert(`Erro ao criar post: ${error.message}\n\nVerifique o console para mais detalhes.`);
-    },
-    onSettled: (data, error) => {
-      console.log("🏁 onSettled - Mutation finalizada:", { data, error });
+      console.error("❌ Erro ao criar post:", error);
+      alert(`Erro ao criar post: ${error.message}`);
     },
   });
 
   const handleInputChange = (field: string, value: string) => {
-    // Só loga mudanças nos campos principais
-    if (field === 'title' || field === 'imageUrl') {
-      console.log(`📝 ${field} alterado:`, value);
-    }
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -138,16 +104,10 @@ export default function NewPostPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log("📝 handleSubmit chamado!");
-    console.log("📋 Dados do formulário:", formData);
-    
     if (!formData.title.trim() || !formData.content.trim()) {
-      console.log("❌ Validação falhou - título ou conteúdo vazio");
       alert("Título e conteúdo são obrigatórios!");
       return;
     }
-
-    console.log("✅ Validação passou");
 
     const postData = {
       title: formData.title.trim(),
@@ -155,21 +115,7 @@ export default function NewPostPage() {
       imageUrl: formData.imageUrl ?? undefined,
     };
 
-    console.log("🚀 Tentando criar post com dados:", postData);
-    console.log("📊 Status da mutation antes:", {
-      isPending: createPostMutation.isPending,
-      isError: createPostMutation.isError,
-      error: createPostMutation.error,
-      isSuccess: createPostMutation.isSuccess
-    });
-
-    try {
-      console.log("🔄 Chamando createPostMutation.mutate...");
-      void createPostMutation.mutate(postData);
-      console.log("✅ Mutation chamada com sucesso");
-    } catch (error) {
-      console.error("❌ Erro ao chamar mutation:", error);
-    }
+    void createPostMutation.mutate(postData);
   };
 
   const handleInlineImageUpload = async (file: File) => {
@@ -271,49 +217,25 @@ export default function NewPostPage() {
             </p>
           </div>
 
-                      <div className="flex items-center space-x-4">
-                              <button
-                  onClick={async () => {
-                    try {
-                      console.log("🧪 Testando conexão tRPC...");
-                      // Testar com uma query mais simples
-                      const response = await fetch('/api/trpc/post.getAll?input={}', {
-                        method: 'GET',
-                        credentials: 'include'
-                      });
-                      console.log("✅ tRPC resposta:", response.status);
-                      alert(`tRPC Status: ${response.status}`);
-                    } catch (error) {
-                      console.error("❌ Erro no tRPC:", error);
-                      alert(`Erro no tRPC: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-                    }
-                  }}
-                  className="px-3 py-1 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                >
-                  Teste tRPC
-                </button>
-
-              <button
-                onClick={() => setShowPreview(!showPreview)}
-                className="group relative px-4 py-2 rounded-xl glass-card hover:shadow-glow transition-all duration-300 hover:scale-105"
-              >
-                {showPreview ? (
-                  <EyeOff className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                ) : (
-                  <Eye className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                )}
-                <span className="ml-2 text-slate-600 dark:text-slate-400">
-                  {showPreview ? "Ocultar Preview" : "Mostrar Preview"}
-                </span>
-              </button>
-            </div>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setShowPreview(!showPreview)}
+              className="group relative px-4 py-2 rounded-xl glass-card hover:shadow-glow transition-all duration-300 hover:scale-105"
+            >
+              {showPreview ? (
+                <EyeOff className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              ) : (
+                <Eye className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              )}
+              <span className="ml-2 text-slate-600 dark:text-slate-400">
+                {showPreview ? "Ocultar Preview" : "Mostrar Preview"}
+              </span>
+            </button>
+          </div>
         </div>
 
         <form 
-          onSubmit={(e) => {
-            console.log("📝 Form onSubmit chamado!");
-            void handleSubmit(e);
-          }} 
+          onSubmit={handleSubmit}
           className="space-y-6"
         >
           {/* Título */}
@@ -448,7 +370,7 @@ export default function NewPostPage() {
                       e.preventDefault();
                       const file = imageItem.getAsFile();
                       if (file) {
-                        console.log('📋 Paste de imagem detectado no textarea');
+                        // Imagem detectada no paste
                         void handleInlineImageUpload(file);
                       }
                     }
@@ -525,77 +447,15 @@ const exemplo = 'código';
               Cancelar
             </Link>
             
-                          <button
-                type="button"
-                onClick={async () => {
-                  console.log("🔍 Estado atual do formulário:", formData);
-                  console.log("📊 Status atual da mutation:", {
-                    isPending: createPostMutation.isPending,
-                    isError: createPostMutation.isError,
-                    isSuccess: createPostMutation.isSuccess,
-                    error: createPostMutation.error
-                  });
-                  
-                  alert(`Formulário:\n- Título: ${formData.title.length} chars\n- Conteúdo: ${formData.content.length} chars\n- Imagem: ${formData.imageUrl ? 'Sim' : 'Não'}\n\nVerifique o console para detalhes completos.`);
-                }}
-                className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 mr-2"
-              >
-                🔍 Ver Estado
-              </button>
-
-              <button
-                type="button"
-                onClick={async () => {
-                  const testData = {
-                    title: "Post de Teste - " + Date.now(),
-                    content: "Este é um conteúdo de teste para verificar se a mutation funciona corretamente.",
-                    imageUrl: undefined,
-                  };
-                  
-                  console.log("🧪 Testando com dados fake:", testData);
-                  
-                  try {
-                    void createPostMutation.mutate(testData);
-                    console.log("✅ Mutation de teste chamada");
-                  } catch (error) {
-                    console.error("❌ Erro no teste:", error);
-                  }
-                }}
-                className="px-4 py-2 text-sm bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 mr-4"
-              >
-                🧪 Teste Direto
-              </button>
-
-            <button
-              type="button"
+                        <button
+              type="submit"
               disabled={createPostMutation.isPending || !formData.title.trim() || !formData.content.trim()}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log("🎯 Botão Criar Post clicado DIRETAMENTE!");
-                
-                if (!formData.title.trim() || !formData.content.trim()) {
-                  alert("Título e conteúdo são obrigatórios!");
-                  return;
-                }
-
-                const postData = {
-                  title: formData.title.trim(),
-                  content: formData.content.trim(),
-                  imageUrl: formData.imageUrl ?? undefined,
-                };
-
-                console.log("🚀 Chamando mutation DIRETAMENTE:", postData);
-                void createPostMutation.mutate(postData);
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative px-8 py-3 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center space-x-2"
             >
-              <div className="flex items-center space-x-2">
-                <Save className="w-4 h-4" />
-                <span>
-                  {createPostMutation.isPending ? "Criando..." : "Criar Post DIRETO"}
-                </span>
-              </div>
+              <Save className="w-5 h-5" />
+              <span>
+                {createPostMutation.isPending ? "Criando..." : "Criar Post"}
+              </span>
             </button>
           </div>
         </form>
