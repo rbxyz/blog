@@ -22,45 +22,575 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "Lexend";
+  src: url("/fonts/Lexend-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Lexend";
+  src: url("/fonts/Lexend-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
 @tailwind utilities;
 
-/* Definindo o modo escuro como padrão */
+/* Variáveis CSS dinâmicas para tema */
 :root {
-  --background-color: #111827;
-  --text-color: #ffffff;
+  /* Cores principais */
+  --bg-primary: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --bg-secondary: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+  --bg-accent: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  /* Cores de texto */
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-accent: #667eea;
+
+  /* Cores de superfície */
+  --surface-primary: rgba(255, 255, 255, 0.9);
+  --surface-secondary: rgba(248, 250, 252, 0.8);
+  --surface-accent: rgba(103, 126, 234, 0.1);
+
+  /* Bordas e sombras */
+  --border-primary: rgba(203, 213, 225, 0.3);
+  --shadow-primary: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-secondary: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+  /* Efeitos */
+  --backdrop-blur: blur(10px);
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.18);
 }
 
-[data-theme="dark"] {
-  --background-color: #111827;
-  --text-color: #ffffff;
+[data-theme="dark"],
+.dark {
+  /* Cores principais */
+  --bg-primary: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --bg-secondary: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  --bg-accent: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  /* Cores de texto */
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-accent: #38bdf8;
+
+  /* Cores de superfície */
+  --surface-primary: rgba(30, 41, 59, 0.9);
+  --surface-secondary: rgba(15, 23, 42, 0.8);
+  --surface-accent: rgba(56, 189, 248, 0.1);
+
+  /* Bordas e sombras */
+  --border-primary: rgba(51, 65, 85, 0.3);
+  --shadow-primary: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-secondary: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+
+  /* Efeitos */
+  --backdrop-blur: blur(10px);
+  --glass-bg: rgba(30, 41, 59, 0.25);
+  --glass-border: rgba(51, 65, 85, 0.18);
 }
 
-[data-theme="light"] {
-  --background-color: #ffffff;
-  --text-color: #000000;
+/* Estilos base */
+html {
+  scroll-behavior: smooth;
 }
 
-/* Aplicando as variáveis no restante do CSS */
 body {
-  background-color: var(--background-color);
-  color: var(--text-color);
   font-family: "Lexend", sans-serif;
-
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  transition: all 0.3s ease;
+  min-height: 100vh;
 }
 
-body.dark {
-  background-color: #111827 !important;
+/* Elementos globais */
+* {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
 
-a {
-  color: var(--text-color);
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.dark h1, 
-.dark h2, 
-.dark h3, 
-.dark p, 
-.dark span, 
-.dark div {
-  color: white !important;
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-accent);
+}
+
+/* Classes utilitárias personalizadas */
+@layer utilities {
+
+  /* Line clamp utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: var(--backdrop-blur);
+    -webkit-backdrop-filter: var(--backdrop-blur);
+    border: 1px solid var(--glass-border);
+  }
+
+  .glass-card {
+    background: var(--surface-primary);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-primary);
+    box-shadow: var(--shadow-primary);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .gradient-border {
+    position: relative;
+    background: var(--surface-primary);
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+    border-radius: inherit;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+  }
+
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-secondary);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-gradient {
+    background-size: 400% 400%;
+    animation: gradient-xy 15s ease infinite;
+  }
+
+  /* Search specific animations */
+  .search-glow {
+    box-shadow: 0 0 0 3px rgba(103, 126, 234, 0.1),
+      0 0 30px rgba(103, 126, 234, 0.1);
+  }
+
+  .search-results-enter {
+    animation: slideDown 0.3s ease-out;
+  }
+
+  .search-item-hover {
+    background: linear-gradient(90deg, transparent, rgba(103, 126, 234, 0.05), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+}
+
+/* Search animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes gradient-xy {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Estilos para o editor markdown */
+.markdown-editor {
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+}
+
+.markdown-preview {
+  /* Estilos específicos para o preview */
+}
+
+/* Estilos para syntax highlighting no editor */
+.hljs {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.hljs-keyword {
+  color: #c084fc !important;
+}
+
+.hljs-string {
+  color: #34d399 !important;
+}
+
+.hljs-number {
+  color: #fbbf24 !important;
+}
+
+.hljs-comment {
+  color: #64748b !important;
+  font-style: italic;
+}
+
+.hljs-function {
+  color: #60a5fa !important;
+}
+
+.hljs-title {
+  color: #f472b6 !important;
+}
+
+.hljs-variable {
+  color: #fb7185 !important;
+}
+
+/* Estilos para o toolbar do editor */
+.editor-toolbar {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 0.75rem;
+  background: rgba(248, 250, 252, 0.5);
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
+.dark .editor-toolbar {
+  background: rgba(15, 23, 42, 0.5);
+  border-bottom-color: rgba(71, 85, 105, 0.2);
+}
+
+/* Estilos para o preview do markdown */
+.prose {
+  max-width: none;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose blockquote {
+  border-left: 4px solid #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.prose code {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.prose pre {
+  background: #1e293b !important;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.prose pre code {
+  background: transparent;
+  color: #e2e8f0;
+  padding: 0;
+}
+
+.prose ul,
+.prose ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin: 0.5rem 0;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.prose th,
+.prose td {
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.prose th {
+  background: rgba(102, 126, 234, 0.1);
+  font-weight: 600;
+}
+
+/* Animações suaves */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilos responsivos para o editor */
+@media (max-width: 768px) {
+  .editor-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .editor-toolbar {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+}
+
+/* Melhorias na interface do editor */
+.editor-container {
+  transition: all 0.3s ease;
+}
+
+.editor-container:focus-within {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+}
+
+/* Estilos para o contador de caracteres */
+.char-counter {
+  font-size: 0.75rem;
+  color: rgba(148, 163, 184, 0.8);
+}
+
+/* Estilos para o drag and drop de imagens */
+.drag-over {
+  border: 2px dashed #667eea !important;
+  background: rgba(102, 126, 234, 0.1) !important;
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.3) !important;
+  transform: scale(1.02) !important;
+}
+
+/* Melhorias no editor com drag & drop */
+#content-textarea {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.75rem;
+}
+
+#content-textarea:focus {
+  border-color: rgba(102, 126, 234, 0.5);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+#content-textarea.drag-over {
+  border-color: #667eea !important;
+  background: rgba(102, 126, 234, 0.05) !important;
+  transform: scale(1.01) !important;
+}
+
+/* Indicador de upload ativo */
+.uploading-indicator {
+  position: relative;
+  opacity: 0.7;
+}
+
+.uploading-indicator::after {
+  content: 'Fazendo upload...';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(102, 126, 234, 0.9);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  z-index: 10;
+  animation: pulse 1.5s infinite;
+}
+
+/* Estilos para os botões de ação */
+.action-button {
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.action-button:active {
+  transform: translateY(0);
+}
+
+/* Loading states */
+.loading-overlay {
+  background: rgba(248, 250, 252, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.dark .loading-overlay {
+  background: rgba(15, 23, 42, 0.8);
+}
+
+/* Melhorias na tipografia */
+.prose p {
+  line-height: 1.7;
+  margin: 1rem 0;
+}
+
+.prose a {
+  color: #667eea;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.prose a:hover {
+  border-bottom-color: #667eea;
+}
+
+/* Estilos para imagens no preview */
+.prose img {
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.prose img:hover {
+  transform: scale(1.02);
+}
+
+/* Melhorias no layout split */
+.split-editor {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.dark .split-editor {
+  border-color: rgba(71, 85, 105, 0.2);
+}
+
+/* Scrollbar personalizada */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(148, 163, 184, 0.1);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+/* Estilos para notificações de sucesso */
+.success-message {
+  background: linear-gradient(135deg, #34d399, #10b981);
+  color: white;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(52, 211, 153, 0.3);
+}
+
+.error-message {
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  color: white;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3);
 }

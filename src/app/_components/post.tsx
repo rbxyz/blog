@@ -19,7 +19,7 @@ export function LatestPost() {
     <div className="w-full max-w-xs">
       {latestPost ? (
         <p className="truncate">
-          Your most recent post: {latestPost?.name ?? "Unnamed Post"}{" "}
+          Your most recent post: {latestPost?.title ?? "Unnamed Post"}{" "}
         </p>
       ) : (
         <p>You have no posts yet.</p>
@@ -28,8 +28,7 @@ export function LatestPost() {
         onSubmit={(e) => {
           e.preventDefault();
           createPost.mutate({
-            name,
-            title: "",
+            title: name,
             content: "",
           });
         }}

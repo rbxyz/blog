@@ -11,12 +11,18 @@ export const config = {
 async function saveFile(file: File): Promise<string> {
   // Define o diretório de uploads
   const uploadDir = path.join(process.cwd(), "public", "upload");
-  if (!fs.existsSync(uploadDir)) { 
+  if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 
+  // Limpa o nome do arquivo removendo caracteres especiais e espaços
+  const cleanFileName = file.name
+    .replace(/[^a-zA-Z0-9.-]/g, '_') // substitui caracteres especiais por _
+    .replace(/\s+/g, '_') // substitui espaços por _
+    .replace(/_+/g, '_'); // remove múltiplos _ consecutivos
+
   // Gera um nome único para o arquivo
-  const filename = `${Date.now()}-${file.name}`;
+  const filename = `${Date.now()}-${cleanFileName}`;
   const filePath = path.join(uploadDir, filename);
 
   // Converte o arquivo para buffer e salva no disco
@@ -24,7 +30,17 @@ async function saveFile(file: File): Promise<string> {
   fs.writeFileSync(filePath, buffer);
 
   // Retorna a URL relativa para o arquivo salvo
-  return `/upload/${filename}`;
+  const imageUrl = `/upload/${filename}`;
+
+  console.log('✅ Arquivo salvo:', {
+    originalName: file.name,
+    cleanFileName,
+    finalName: filename,
+    url: imageUrl,
+    path: filePath
+  });
+
+  return imageUrl;
 }
 
 export async function POST(req: Request) {

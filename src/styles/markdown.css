@@ -1,40 +1,277 @@
 .markdown-container {
-    font-family: "Lexend", sans-serif;
-    line-height: 1.75;
-  }
-  
-  .markdown-container h1 {
-    font-size: 2rem;
-    font-weight: bold;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .markdown-container h2 {
-    font-size: 1.5rem;
-    font-weight: semibold;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .markdown-container p {
-    margin-bottom: 1rem;
-  }
-  
-  .markdown-container ul {
-    list-style-type: disc;
-    margin-left: 1.5rem;
-  }
-  
-  .markdown-container ol {
-    list-style-type: decimal;
-    margin-left: 1.5rem;
-  }
-  
-  .markdown-container code {
-    background-color: #2d2d2d;
-    color: white;
-    padding: 0.2rem 0.4rem;
-    border-radius: 5px;
-  }
-  
+  font-family: "Lexend", sans-serif;
+  line-height: 1.75;
+  color: inherit;
+}
+
+.markdown-container h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+}
+
+.markdown-container h2 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  position: relative;
+}
+
+.markdown-container h2::after {
+  content: '';
+  position: absolute;
+  bottom: -0.5rem;
+  left: 0;
+  width: 3rem;
+  height: 3px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 2px;
+}
+
+.markdown-container h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.markdown-container p {
+  margin-bottom: 1.5rem;
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+
+.markdown-container ul {
+  list-style: none;
+  margin-left: 0;
+  margin-bottom: 1.5rem;
+  padding-left: 0;
+}
+
+.markdown-container ul li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.markdown-container ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  width: 6px;
+  height: 6px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 50%;
+}
+
+.markdown-container ol {
+  list-style: decimal;
+  margin-left: 2rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-secondary);
+}
+
+.markdown-container ol li {
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.markdown-container blockquote {
+  border-left: 4px solid;
+  border-image: linear-gradient(135deg, #667eea, #764ba2) 1;
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+  font-style: italic;
+  color: var(--text-secondary);
+  background: var(--surface-accent);
+  padding: 1rem 1.5rem;
+  border-radius: 0 12px 12px 0;
+}
+
+.markdown-container code {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: 0.875rem;
+}
+
+.markdown-container :not(pre)>code {
+  background: var(--surface-accent);
+  color: #667eea;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  border: 1px solid var(--border-primary);
+}
+
+.markdown-container pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 1.5rem;
+  border-radius: 12px;
+  overflow-x: auto;
+  margin: 2rem 0;
+  border: 1px solid rgba(51, 65, 85, 0.3);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.markdown-container pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+  font-weight: normal;
+  border: none;
+}
+
+.markdown-container a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.markdown-container a:hover {
+  color: #764ba2;
+}
+
+.markdown-container a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  transition: width 0.3s ease;
+}
+
+.markdown-container a:hover::after {
+  width: 100%;
+}
+
+.markdown-container img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: block;
+  margin: 2rem auto;
+}
+
+.markdown-container img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos específicos para imagens inline no markdown */
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: block;
+  margin: 2rem auto;
+}
+
+.prose img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.markdown-container table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  background: var(--surface-primary);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.markdown-container th,
+.markdown-container td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.markdown-container th {
+  background: var(--surface-accent);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.markdown-container tr:last-child td {
+  border-bottom: none;
+}
+
+.markdown-container hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-primary), transparent);
+  margin: 3rem 0;
+}
+
+/* Syntax highlighting for code blocks */
+.markdown-container .token.comment,
+.markdown-container .token.prolog,
+.markdown-container .token.doctype,
+.markdown-container .token.cdata {
+  color: #6a737d;
+}
+
+.markdown-container .token.punctuation {
+  color: #e1e4e8;
+}
+
+.markdown-container .token.property,
+.markdown-container .token.tag,
+.markdown-container .token.boolean,
+.markdown-container .token.number,
+.markdown-container .token.constant,
+.markdown-container .token.symbol,
+.markdown-container .token.deleted {
+  color: #79b8ff;
+}
+
+.markdown-container .token.selector,
+.markdown-container .token.attr-name,
+.markdown-container .token.string,
+.markdown-container .token.char,
+.markdown-container .token.builtin,
+.markdown-container .token.inserted {
+  color: #85e89d;
+}
+
+.markdown-container .token.operator,
+.markdown-container .token.entity,
+.markdown-container .token.url,
+.markdown-container .language-css .token.string,
+.markdown-container .style .token.string {
+  color: #b392f0;
+}
+
+.markdown-container .token.atrule,
+.markdown-container .token.attr-value,
+.markdown-container .token.keyword {
+  color: #f97583;
+}
+
+.markdown-container .token.function,
+.markdown-container .token.class-name {
+  color: #b392f0;
+}

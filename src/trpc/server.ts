@@ -16,12 +16,12 @@ const createContext = cache(async () => {
   const heads = new Headers(await headers());
   heads.set("x-trpc-source", "rsc");
 
-  return createTRPCContext({ _headers: heads });
+  return createTRPCContext({ req: { headers: heads } });
 });
 
 const getQueryClient = cache(createQueryClient);
 
-const caller = appRouter.createCaller(await createContext()); 
+const caller = appRouter.createCaller(await createContext());
 
 export const { trpc: api, HydrateClient } = createHydrationHelpers<AppRouter>(
   caller,

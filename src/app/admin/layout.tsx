@@ -1,4 +1,5 @@
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
+import { validateSession } from "~/lib/auth";
 import { redirect } from "next/navigation";
 
 export default async function AdminLayout({
@@ -6,26 +7,22 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const authData = await auth();
-  const userId = authData?.userId;
-
-  if (!userId) {
-    redirect("/");
+  // Verificar autenticação
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get('session')?.value;
+  
+  if (!sessionToken) {
+    redirect("/auth/login?redirect=/admin");
   }
 
-  const ALLOWED_EMAIL = process.env.NEXT_PUBLIC_ALLOWED_EMAIL;
-
   try {
-    // 🔹 Chama `clerkClient` para obter o usuário
-    const client = await clerkClient();
-    const user = await client.users.getUser(userId);
-    const email = user?.primaryEmailAddress?.emailAddress;
-
-    if (email !== ALLOWED_EMAIL) {
+    const user = await validateSession(sessionToken);
+    
+    if (!user || user.role !== 'ADMIN') {
       redirect("/");
     }
   } catch (error) {
-    redirect("/");
+    redirect("/auth/login?redirect=/admin");
   }
 
   return <>{children}</>;

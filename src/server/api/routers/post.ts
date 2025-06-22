@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { prisma } from "../../db";
-import { publicProcedure, router } from "../trpc";
+import { publicProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
 import slugify from "slugify";
 
-export const postRouter = router({
+export const postRouter = createTRPCRouter({
   all: publicProcedure.query(async () => {
     try {
       console.log("📡 Recebida requisição para buscar posts...");
@@ -13,24 +13,19 @@ export const postRouter = router({
           id: true,
           title: true,
           content: true,
-          name: true,
           imageUrl: true,
           slug: true,
           viewCount: true,
+          published: true,
           createdAt: true,
         },
-      }).then(posts =>
-        posts.map(post => ({
-          ...post,
-          name: post.name ?? "Ruan | D3v", // 🔹 Corrigindo `null`
-        }))
-      );
+      });
     } catch (error) {
       console.error("🔥 Erro ao buscar posts:", error);
       throw new Error("Erro ao buscar posts");
     }
   }),
-    // 🔹 Novo endpoint para buscar o último post criado
+  // 🔹 Novo endpoint para buscar o último post criado
   getLatest: publicProcedure.query(async () => {
     try {
       return await prisma.post.findFirst({
@@ -83,53 +78,91 @@ export const postRouter = router({
     }
   }),
 
-  create: publicProcedure
+  create: protectedProcedure
     .input(
       z.object({
         title: z.string().min(5),
         content: z.string().min(10),
-        name: z.string().min(3),
         imageUrl: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      console.log("🔍 Dados recebidos para criar post:", {
+        input,
+        session: {
+          id: ctx.session.id,
+          email: ctx.session.email,
+          role: ctx.session.role
+        }
+      });
+
+      // Verificar se é o email autorizado ou ADMIN
+      if (ctx.session.email !== 'rbcr4z1@gmail.com' && ctx.session.role !== 'ADMIN') {
+        console.error("❌ Usuário não autorizado:", {
+          email: ctx.session.email,
+          role: ctx.session.role
+        });
+        throw new Error("Apenas o administrador pode criar posts");
+      }
+
       try {
         const slug = slugify(input.title, { lower: true, strict: true });
+        console.log("🔗 Slug gerado:", slug);
 
         // Verifica se o slug já existe
         const existingPost = await prisma.post.findUnique({ where: { slug } });
-        if (existingPost) throw new Error("Título já está em uso.");
+        if (existingPost) {
+          console.error("❌ Slug já existe:", slug);
+          throw new Error("Título já está em uso.");
+        }
+
+        const postData = {
+          title: input.title,
+          content: input.content,
+          slug,
+          imageUrl: input.imageUrl,
+          authorId: ctx.session.id,
+          published: false,
+        };
+
+        console.log("💾 Criando post no banco:", postData);
 
         const newPost = await prisma.post.create({
-          data: {
-            title: input.title,
-            content: input.content,
-            name: input.name,
-            createdAt: new Date(),
-            slug,
-            imageUrl: input.imageUrl,
-          },
+          data: postData,
         });
 
-        console.log("📑 Novo post criado:", newPost);
+        console.log("✅ Post criado com sucesso:", newPost);
         return newPost;
       } catch (error) {
-        console.error("🔥 Erro ao criar post:", error);
-        throw new Error("Erro ao criar post");
+        console.error("🔥 Erro detalhado ao criar post:", {
+          error: error instanceof Error ? error.message : error,
+          stack: error instanceof Error ? error.stack : undefined,
+          input,
+          session: ctx.session
+        });
+
+        if (error instanceof Error) {
+          throw error;
+        } else {
+          throw new Error("Erro desconhecido ao criar post");
+        }
       }
     }),
 
-  update: publicProcedure
+  update: protectedProcedure
     .input(
       z.object({
         id: z.string(),
         title: z.string().min(5),
         content: z.string().min(5),
-        name: z.string().min(3),
         imageUrl: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      // Verificar se é o email autorizado para editar posts
+      if (ctx.session.email !== 'rbcr4z1@gmail.com') {
+        throw new Error("Apenas o administrador pode editar posts");
+      }
       try {
         const slug = slugify(input.title, { lower: true, strict: true });
 
@@ -138,7 +171,6 @@ export const postRouter = router({
           data: {
             title: input.title,
             content: input.content,
-            name: input.name,
             imageUrl: input.imageUrl,
             slug,
           },
@@ -152,28 +184,54 @@ export const postRouter = router({
       }
     }),
 
-  delete: publicProcedure.input(z.string()).mutation(async ({ input }) => {
-    try {
-      const deletedPost = await prisma.post.delete({ where: { id: input } });
-      console.log("🗑️ Post excluído:", deletedPost);
-      return deletedPost;
-    } catch (error) {
-      console.error("🔥 Erro ao deletar post:", error);
-      throw new Error("Erro ao deletar post");
-    }
-  }),
+  delete: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      // Verificar se é admin
+      if (ctx.session.role !== "ADMIN") {
+        throw new Error("Acesso negado");
+      }
+
+      return ctx.db.post.delete({
+        where: { id: input.id },
+      });
+    }),
 
   search: publicProcedure
     .input(z.object({ query: z.string().min(3) }))
     .query(async ({ input }) => {
+      const searchQuery = input.query.trim();
+
+      // Split query into words for better matching
+      const searchWords = searchQuery.split(/\s+/).filter(word => word.length > 2);
+
       return await prisma.post.findMany({
         where: {
-          OR: [
-            { title: { contains: input.query, mode: "insensitive" } },
-            { content: { contains: input.query, mode: "insensitive" } },
+          AND: [
+            { published: true }, // Only search published posts
+            {
+              OR: [
+                // Exact phrase match in title (highest priority)
+                { title: { contains: searchQuery, mode: "insensitive" as any } },
+                // Exact phrase match in content
+                { content: { contains: searchQuery, mode: "insensitive" as any } },
+                // Individual word matches in title
+                ...searchWords.map(word => ({
+                  title: { contains: word, mode: "insensitive" as any }
+                })),
+                // Individual word matches in content
+                ...searchWords.map(word => ({
+                  content: { contains: word, mode: "insensitive" as any }
+                })),
+              ],
+            },
           ],
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: [
+          // Order by relevance - title matches first, then by creation date
+          { createdAt: "desc" }
+        ],
+        take: 10, // Limit results
       });
     }),
 
@@ -201,4 +259,37 @@ export const postRouter = router({
       take: 5,
     });
   }),
+
+  // Função para listar todos os posts (admin)
+  getAll: protectedProcedure
+    .query(async ({ ctx }) => {
+      // Verificar se é admin
+      if (ctx.session.role !== "ADMIN") {
+        throw new Error("Acesso negado");
+      }
+
+      return ctx.db.post.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    }),
+
+  // Função para alternar publicação (admin)
+  togglePublished: protectedProcedure
+    .input(z.object({
+      id: z.string(),
+      published: z.boolean()
+    }))
+    .mutation(async ({ ctx, input }) => {
+      // Verificar se é admin
+      if (ctx.session.role !== "ADMIN") {
+        throw new Error("Acesso negado");
+      }
+
+      return ctx.db.post.update({
+        where: { id: input.id },
+        data: { published: input.published },
+      });
+    }),
 });
