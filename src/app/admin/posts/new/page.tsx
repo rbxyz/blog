@@ -20,12 +20,8 @@ export default function NewPostPage() {
     imageUrl: "",
   });
   
-  const [showPreview, setShowPreview] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [session, setSession] = useState<{ user: { name?: string } } | null>(null);
-  const [user, setUser] = useState<{ name?: string } | null>(null);
+      const [showPreview, setShowPreview] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
   // Teste de autenticação
   useEffect(() => {
@@ -34,7 +30,7 @@ export default function NewPostPage() {
         const response = await fetch('/api/auth/me', {
           credentials: 'include'
         });
-        const data = await response.json() as { user?: any };
+        const data = await response.json() as { user?: { name?: string } };
         console.log("🔐 Status de autenticação:", {
           status: response.status,
           authenticated: response.ok,
@@ -98,7 +94,7 @@ export default function NewPostPage() {
         throw new Error("Erro no upload da imagem");
       }
 
-      const { imageUrl } = await response.json();
+      const { imageUrl } = await response.json() as { imageUrl: string };
       handleInputChange("imageUrl", imageUrl);
     } catch (error) {
       console.error("Erro no upload:", error);
@@ -111,7 +107,7 @@ export default function NewPostPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      handleImageUpload(file);
+      void handleImageUpload(file);
     }
   };
 
@@ -193,7 +189,7 @@ export default function NewPostPage() {
         throw new Error("Erro no upload da imagem");
       }
 
-      const { imageUrl } = await response.json();
+      const { imageUrl } = await response.json() as { imageUrl: string };
       
       // Inserir a imagem na posição atual do cursor
       const textarea = document.getElementById("content-textarea") as HTMLTextAreaElement;
@@ -210,7 +206,7 @@ export default function NewPostPage() {
         handleInputChange("content", newContent);
         
         // Posicionar cursor após a imagem inserida
-        setTimeout(() => {
+        void setTimeout(() => {
           textarea.focus();
           textarea.setSelectionRange(
             start + imageMarkdown.length, 
@@ -233,7 +229,7 @@ export default function NewPostPage() {
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        handleInlineImageUpload(file);
+        void handleInlineImageUpload(file);
       }
     };
     input.click();
@@ -316,7 +312,7 @@ export default function NewPostPage() {
         <form 
           onSubmit={(e) => {
             console.log("📝 Form onSubmit chamado!");
-            handleSubmit(e);
+            void handleSubmit(e);
           }} 
           className="space-y-6"
         >
@@ -431,7 +427,7 @@ export default function NewPostPage() {
                     const files = Array.from(e.dataTransfer.files);
                     const imageFile = files.find(file => file.type.startsWith('image/'));
                     if (imageFile) {
-                      handleInlineImageUpload(imageFile);
+                      void handleInlineImageUpload(imageFile);
                     }
                   }}
                   onDragOver={(e) => {
@@ -453,7 +449,7 @@ export default function NewPostPage() {
                       const file = imageItem.getAsFile();
                       if (file) {
                         console.log('📋 Paste de imagem detectado no textarea');
-                        handleInlineImageUpload(file);
+                        void handleInlineImageUpload(file);
                       }
                     }
                   }}

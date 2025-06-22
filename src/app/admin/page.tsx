@@ -64,7 +64,7 @@ export default function AdminPage() {
   const publishedPosts = posts?.filter(post => post.published).length ?? 0;
   const totalViews = posts?.reduce((sum, post) => sum + (post.viewCount ?? 0), 0) ?? 0;
   const totalComments = comments?.length ?? 0;
-  const activeComments = comments?.filter(comment => !comment.isDeleted).length ?? 0;
+      const activeComments = comments?.filter(comment => !comment.isDeleted).length ?? 0;
 
   const tabs = [
     { id: "overview", label: "Visão Geral", icon: TrendingUp },

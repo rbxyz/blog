@@ -41,7 +41,7 @@ export default function Comments({ postId, user }: CommentsProps) {
   const createMutation = api.comment.create.useMutation({
     onSuccess: () => {
       setNewComment("");
-      refetch();
+      void refetch();
     },
   });
 
@@ -49,13 +49,13 @@ export default function Comments({ postId, user }: CommentsProps) {
     onSuccess: () => {
       setEditingId(null);
       setEditContent("");
-      refetch();
+      void refetch();
     },
   });
 
   const deleteMutation = api.comment.delete.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
     },
   });
 

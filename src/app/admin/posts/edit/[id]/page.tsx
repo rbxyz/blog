@@ -91,7 +91,7 @@ export default function EditPostPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      handleImageUpload(file);
+      void handleImageUpload(file);
     }
   };
 
@@ -192,7 +192,7 @@ export default function EditPostPage() {
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        handleInlineImageUpload(file);
+        void handleInlineImageUpload(file);
       }
     };
     input.click();
@@ -210,7 +210,7 @@ export default function EditPostPage() {
     { icon: Hash, action: () => insertMarkdown("## "), title: "Cabeçalho" },
   ];
 
-  if (postLoading ?? isLoading) {
+  if (postLoading || isLoading) {
     return (
       <div className="min-h-screen pt-20 pb-12 px-6 flex items-center justify-center">
         <div className="text-center">
@@ -464,7 +464,7 @@ export default function EditPostPage() {
             
             <button
               type="submit"
-              disabled={updatePostMutation.isPending ?? !formData.title.trim() ?? !formData.content.trim()}
+              disabled={updatePostMutation.isPending || !formData.title.trim() || !formData.content.trim()}
               className="group relative px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 shadow-lg group-hover:shadow-glow"></div>

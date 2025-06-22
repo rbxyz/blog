@@ -127,7 +127,7 @@ export default function SearchBy() {
               )}
 
               {/* No Results State */}
-              {query.length >= 3 && !isLoading && (!results ?? results.length === 0) && (
+              {query.length >= 3 && !isLoading && (!results || results.length === 0) && (
                 <div className="p-6 text-center">
                   <FileText className="w-8 h-8 text-slate-400 mx-auto mb-3" />
                   <p className="text-slate-600 dark:text-slate-400 font-medium mb-1">

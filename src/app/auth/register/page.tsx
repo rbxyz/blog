@@ -64,7 +64,7 @@ export default function RegisterPage() {
         }),
       });
 
-      const data = await response.json() as { user?: any; error?: string };
+      const data = await response.json() as { user?: { id: string; email: string; name?: string }; error?: string };
 
       if (response.ok) {
         // Registro bem-sucedido
