@@ -26,7 +26,10 @@ export function extractUserInfo(request: Request): {
     const realIp = headers.get('x-real-ip');
 
     if (forwardedFor) {
-        ipAddress = forwardedFor.split(',')[0].trim();
+        const firstIp = forwardedFor.split(',')[0];
+        if (firstIp) {
+            ipAddress = firstIp.trim();
+        }
     } else if (realIp) {
         ipAddress = realIp;
     }
