@@ -22,7 +22,7 @@ export default function NewPostPage() {
     spotifyPlaylistUrl: "",
     hasAudio: false,
     published: false,
-    scheduledAt: null as Date | null,
+    scheduledAt: undefined as Date | undefined,
   });
   
   const [schedulingData, setSchedulingData] = useState({
@@ -162,11 +162,20 @@ export default function NewPostPage() {
     }
 
     // Preparar dados de agendamento
-    let scheduledAt = null;
+    let scheduledAt: Date | undefined = undefined;
     if (schedulingData.isScheduled && schedulingData.scheduledDate && schedulingData.scheduledTime) {
-      const [year, month, day] = schedulingData.scheduledDate.split('-').map(Number);
-      const [hour, minute] = schedulingData.scheduledTime.split(':').map(Number);
-      scheduledAt = new Date(year, month - 1, day, hour, minute);
+      const dateParts = schedulingData.scheduledDate.split('-').map(Number);
+      const timeParts = schedulingData.scheduledTime.split(':').map(Number);
+      
+      if (dateParts.length === 3 && timeParts.length === 2) {
+        const [year, month, day] = dateParts;
+        const [hour, minute] = timeParts;
+        
+        // Verificar se todos os valores são válidos
+        if (year && month && day && hour !== undefined && minute !== undefined) {
+          scheduledAt = new Date(year, month - 1, day, hour, minute);
+        }
+      }
     }
 
     const postData = {
@@ -178,7 +187,7 @@ export default function NewPostPage() {
       spotifyPlaylistUrl: formData.spotifyPlaylistUrl || undefined,
       hasAudio: formData.hasAudio,
       published: !schedulingData.isScheduled, // Publicar imediatamente se não agendado
-      scheduledAt: scheduledAt,
+      scheduledAt: scheduledAt || undefined,
     };
 
     void createPostMutation.mutate(postData);

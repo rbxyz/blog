@@ -211,7 +211,7 @@ class TemplateService {
           description: data.description,
           htmlContent: data.htmlContent,
           cssContent: data.cssContent,
-          variables: data.variables,
+          variables: data.variables ? JSON.parse(JSON.stringify(data.variables)) : undefined,
           isActive: true,
           isDefault: false,
         },

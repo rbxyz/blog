@@ -25,7 +25,7 @@ export default function EditPostPage() {
     spotifyPlaylistUrl: "",
     hasAudio: false,
     published: false,
-    scheduledAt: null as Date | null,
+    scheduledAt: undefined as Date | undefined,
   });
   
   const [spotifyUrlError, setSpotifyUrlError] = useState<string | null>(null);
@@ -77,7 +77,7 @@ export default function EditPostPage() {
         spotifyPlaylistUrl: post.spotifyPlaylistUrl ?? "",
         hasAudio: post.hasAudio ?? false,
         published: post.published ?? false,
-        scheduledAt: post.scheduledAt,
+        scheduledAt: post.scheduledAt ?? undefined,
       });
       setIsLoading(false);
     }
@@ -166,7 +166,7 @@ export default function EditPostPage() {
       spotifyPlaylistUrl: formData.spotifyPlaylistUrl || undefined,
       hasAudio: formData.hasAudio,
       published: formData.published,
-      scheduledAt: formData.scheduledAt,
+      scheduledAt: formData.scheduledAt || undefined,
     });
   };
 
