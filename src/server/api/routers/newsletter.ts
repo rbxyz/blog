@@ -5,6 +5,8 @@ import { emailService } from "~/lib/email";
 import { queueService } from "~/lib/queue";
 import { templateService } from "~/lib/templates";
 
+
+
 // Definir enums localmente para evitar problemas de import
 enum EmailType {
     WELCOME = "WELCOME",
@@ -27,7 +29,6 @@ export const newsletterRouter = createTRPCRouter({
                 email: z.string().email("E-mail inválido"),
                 name: z.string().optional(),
                 source: z.string().optional(),
-                metadata: z.record(z.unknown()).optional(),
             })
         )
         .mutation(async ({ input }) => {
@@ -44,13 +45,13 @@ export const newsletterRouter = createTRPCRouter({
                         // Reativar inscrição
                         await prisma.newsletterSubscriber.update({
                             where: { id: existingSubscriber.id },
-                                                    data: {
-                            isActive: true,
-                            unsubscribedAt: null,
-                            name: input.name,
-                            source: input.source,
-                            ...(input.metadata && { metadata: input.metadata }),
-                        },
+                            data: {
+                                isActive: true,
+                                unsubscribedAt: null,
+                                name: input.name,
+                                source: input.source,
+
+                            },
                         });
                         return { success: true, message: "Inscrição reativada com sucesso" };
                     }
@@ -62,7 +63,7 @@ export const newsletterRouter = createTRPCRouter({
                         email: input.email,
                         name: input.name,
                         source: input.source,
-                        ...(input.metadata && { metadata: input.metadata }),
+
                     },
                 });
 

@@ -34,7 +34,7 @@ export default function UnsubscribePage() {
     }
 
     setIsProcessing(true);
-    unsubscribeMutation.mutate({ email });
+    void unsubscribeMutation.mutate({ email });
   };
 
   useEffect(() => {

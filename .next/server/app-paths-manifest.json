@@ -10,12 +10,12 @@
   "/api/posts/[slug]/view/route": "app/api/posts/[slug]/view/route.js",
   "/api/trpc/[trpc]/route": "app/api/trpc/[trpc]/route.js",
   "/api/upload/route": "app/api/upload/route.js",
-  "/auth/register/page": "app/auth/register/page.js",
   "/auth/login/page": "app/auth/login/page.js",
+  "/auth/register/page": "app/auth/register/page.js",
   "/newsletter/unsubscribe/page": "app/newsletter/unsubscribe/page.js",
   "/page": "app/page.js",
   "/post/[slug]/page": "app/post/[slug]/page.js",
-  "/admin/posts/edit/[id]/page": "app/admin/posts/edit/[id]/page.js",
   "/admin/page": "app/admin/page.js",
+  "/admin/posts/edit/[id]/page": "app/admin/posts/edit/[id]/page.js",
   "/admin/posts/new/page": "app/admin/posts/new/page.js"
 }

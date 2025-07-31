@@ -44,14 +44,10 @@ export default function NewsletterSignup({ className = '', variant = 'default' }
       return;
     }
 
-    subscribeMutation.mutate({
+    void subscribeMutation.mutate({
       email,
       name: name || undefined,
       source: 'website_form',
-      metadata: {
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-      },
     });
   };
 
@@ -95,9 +91,9 @@ export default function NewsletterSignup({ className = '', variant = 'default' }
             type="submit"
             disabled={subscribeMutation.isPending}
             className="w-full px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-            onClick={(e) => {
+            onClick={async (e) => {
               try {
-                handleSubmit(e);
+                await handleSubmit(e);
               } catch (error) {
                 setMessage({ type: 'error', text: (error as Error).message || 'Erro ao inscrever' });
               }
