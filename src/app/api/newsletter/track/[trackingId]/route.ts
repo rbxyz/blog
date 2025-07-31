@@ -1,14 +1,13 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { prisma } from '~/server/db';
-import { EmailStatus } from '@prisma/client';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { trackingId: string } }
+    { params }: { params: Promise<{ trackingId: string }> }
 ) {
     try {
-        const { trackingId } = params;
+        const { trackingId } = await params;
 
         // Buscar o log de email pelo tracking ID
         const emailLog = await prisma.newsletterEmailLog.findUnique({
@@ -27,7 +26,7 @@ export async function GET(
         await prisma.newsletterEmailLog.update({
             where: { id: emailLog.id },
             data: {
-                status: EmailStatus.OPENED,
+                status: 'OPENED',
                 openedAt: new Date(),
                 lastOpenedAt: new Date(),
                 openCount: {

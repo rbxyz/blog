@@ -1,14 +1,13 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { prisma } from '~/server/db';
-import { EmailStatus } from '@prisma/client';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { trackingId: string } }
+    { params }: { params: Promise<{ trackingId: string }> }
 ) {
     try {
-        const { trackingId } = params;
+        const { trackingId } = await params;
         const { searchParams } = new URL(request.url);
         const redirectUrl = searchParams.get('url');
 
@@ -33,7 +32,7 @@ export async function GET(
         await prisma.newsletterEmailLog.update({
             where: { id: emailLog.id },
             data: {
-                status: EmailStatus.CLICKED,
+                status: 'CLICKED',
                 clickedAt: new Date(),
                 lastClickedAt: new Date(),
                 clickCount: {
