@@ -79,63 +79,6 @@ export default function AboutMe({ className = '', variant = 'default' }: AboutMe
         <p className="text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
           {aboutMeConfig.bio}
         </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          {aboutMeConfig.highlights.map((highlight, index) => {
-            const IconComponent = iconMap[highlight.icon as keyof typeof iconMap];
-            const colorClasses = {
-              blue: 'text-blue-500',
-              green: 'text-green-500', 
-              purple: 'text-purple-500',
-              orange: 'text-orange-500'
-            };
-            
-            return (
-              <div key={index} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                <IconComponent className={`w-5 h-5 ${colorClasses[highlight.color as keyof typeof colorClasses]}`} />
-                <div>
-                  <p className="font-medium text-slate-800 dark:text-slate-200">{highlight.title}</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">{highlight.description}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-4">
-          <h5 className="font-semibold text-slate-800 dark:text-slate-200 mb-2">
-            💡 Por que confiar no meu conteúdo?
-          </h5>
-          <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
-            {aboutMeConfig.trustPoints.map((point, index) => (
-              <li key={index}>• {point.replace('Anos', `${experienceYears}+ anos`)}</li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-          <div className="flex flex-wrap gap-2">
-            {aboutMeConfig.skills.map((skill, index) => {
-              const colors = [
-                'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
-                'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
-                'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300',
-                'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
-                'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
-                'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-              ];
-              
-              return (
-                <span 
-                  key={index} 
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${colors[index % colors.length]}`}
-                >
-                  {skill}
-                </span>
-              );
-            })}
-          </div>
-        </div>
       </div>
     </div>
   );

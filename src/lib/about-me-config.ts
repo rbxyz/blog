@@ -16,14 +16,13 @@ export interface AboutMeConfig {
 }
 
 export const aboutMeConfig: AboutMeConfig = {
-    name: "Ruan Carlos",
-    title: "Desenvolvedor Full Stack & Especialista em Tecnologia",
+    name: "Ruan Bueno",
+    title: "Dev. Full Stack & Gestor de Tráfego & Marketeiro",
     email: "rbcr4z1@gmail.com",
-    location: "Brasil",
+    location: "Brasil, Rio Grande do Sul",
     startYear: 2020,
-    bio: `Sou um desenvolvedor apaixonado por tecnologia e inovação, com foco em criar soluções 
-  escaláveis e de alta qualidade. Especializado em desenvolvimento web moderno, 
-  arquitetura de software e boas práticas de programação.`,
+    bio: `entusiasta de café & automação & tech -> esse é o Ruan.
+Me chamo Ruan Bueno, especialista em Gestão de Tráfego Pago e Conversão Digital, formado como Técnico em Informática e desenvolvedor de tecnologias/soluções para todos os tipos de negócios. Minha missão é transformar estratégias digitais em resultados concretos, conectando marcas ao público certo e convertendo cliques em clientes.`,
     skills: [
         "React",
         "Node.js",
