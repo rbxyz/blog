@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { api } from "~/trpc/react";
-import { ArrowLeft, Upload, Eye, EyeOff, Save, FileText, Image, Bold, Italic, Code, Link as LinkIcon, List, ListOrdered, Quote, Hash, Loader2 } from "lucide-react";
+import { ArrowLeft, Upload, Eye, EyeOff, Save, FileText, Image, Bold, Italic, Code, Link as LinkIcon, List, ListOrdered, Quote, Hash, Loader2, Music } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
@@ -20,7 +20,15 @@ export default function EditPostPage() {
     title: "",
     content: "",
     imageUrl: "",
+    audioUrl: "",
+    audioDuration: 0,
+    spotifyPlaylistUrl: "",
+    hasAudio: false,
+    published: false,
+    scheduledAt: null as Date | null,
   });
+  
+  const [spotifyUrlError, setSpotifyUrlError] = useState<string | null>(null);
   
   const [showPreview, setShowPreview] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -42,6 +50,21 @@ export default function EditPostPage() {
     },
   });
 
+  // Validar URL do Spotify
+  const validateSpotifyUrl = (url: string): boolean => {
+    const spotifyRegex = /^https:\/\/open\.spotify\.com\/(playlist|album|track)\/[a-zA-Z0-9]+(\?.*)?$/;
+    return spotifyRegex.test(url);
+  };
+
+  const handleSpotifyUrlChange = (url: string) => {
+    if (url && !validateSpotifyUrl(url)) {
+      setSpotifyUrlError('URL do Spotify inválida. Use: https://open.spotify.com/playlist/...');
+    } else {
+      setSpotifyUrlError(null);
+    }
+    setFormData(prev => ({ ...prev, spotifyPlaylistUrl: url }));
+  };
+
   // Carregar dados do post quando disponível
   useEffect(() => {
     if (post) {
@@ -49,6 +72,12 @@ export default function EditPostPage() {
         title: post.title ?? "",
         content: post.content ?? "",
         imageUrl: post.imageUrl ?? "",
+        audioUrl: post.audioUrl ?? "",
+        audioDuration: post.audioDuration ?? 0,
+        spotifyPlaylistUrl: post.spotifyPlaylistUrl ?? "",
+        hasAudio: post.hasAudio ?? false,
+        published: post.published ?? false,
+        scheduledAt: post.scheduledAt,
       });
       setIsLoading(false);
     }
@@ -132,6 +161,12 @@ export default function EditPostPage() {
       title: formData.title.trim(),
       content: formData.content.trim(),
       imageUrl: formData.imageUrl ?? undefined,
+      audioUrl: formData.audioUrl || undefined,
+      audioDuration: formData.audioDuration || undefined,
+      spotifyPlaylistUrl: formData.spotifyPlaylistUrl || undefined,
+      hasAudio: formData.hasAudio,
+      published: formData.published,
+      scheduledAt: formData.scheduledAt,
     });
   };
 
@@ -342,6 +377,105 @@ export default function EditPostPage() {
                     alt="Preview da imagem de capa"
                     className="relative w-full max-h-64 object-cover rounded-xl shadow-lg transition-transform duration-500 group-hover:scale-[1.02]"
                   />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Áudio do Post */}
+          <div className="glass-card rounded-2xl p-6">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+              <Music className="w-4 h-4 inline mr-2" />
+              Áudio do Post (Podcast)
+            </label>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  URL do Áudio (opcional)
+                </label>
+                <input
+                  type="url"
+                  value={formData.audioUrl}
+                  onChange={(e) => handleInputChange("audioUrl", e.target.value)}
+                  placeholder="https://exemplo.com/audio.mp3"
+                  className="w-full p-3 rounded-xl glass border border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all duration-200"
+                />
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Adicione uma URL de áudio para criar um post de podcast
+                </p>
+              </div>
+
+              {/* URL da Playlist do Spotify */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  URL da Playlist do Spotify (opcional)
+                </label>
+                <input
+                  type="url"
+                  value={formData.spotifyPlaylistUrl}
+                  onChange={(e) => handleSpotifyUrlChange(e.target.value)}
+                  placeholder="https://open.spotify.com/playlist/..."
+                  className={`w-full p-3 rounded-xl glass border ${
+                    spotifyUrlError 
+                      ? 'border-red-300 dark:border-red-700' 
+                      : 'border-slate-200/50 dark:border-slate-700/50'
+                  } bg-white/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all duration-200`}
+                />
+                {spotifyUrlError && (
+                  <p className="text-xs text-red-500 dark:text-red-400 mt-1">
+                    {spotifyUrlError}
+                  </p>
+                )}
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Adicione uma playlist relacionada ao conteúdo do post
+                </p>
+              </div>
+
+              {/* Status de Áudio */}
+              <div>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.hasAudio}
+                    onChange={(e) => handleInputChange("hasAudio", e.target.checked.toString())}
+                    className="rounded border-slate-300"
+                  />
+                  <span className="text-sm text-slate-600 dark:text-slate-400">
+                    Este post contém áudio/podcast
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Status de Publicação */}
+          <div className="glass-card rounded-2xl p-6">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+              <Eye className="w-4 h-4 inline mr-2" />
+              Status de Publicação
+            </label>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.published}
+                    onChange={(e) => handleInputChange("published", e.target.checked.toString())}
+                    className="rounded border-slate-300"
+                  />
+                  <span className="text-sm text-slate-600 dark:text-slate-400">
+                    Publicar imediatamente
+                  </span>
+                </label>
+              </div>
+              
+              {!formData.published && (
+                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl">
+                  <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                    <strong>Rascunho:</strong> Este post não será visível publicamente até ser publicado.
+                  </p>
                 </div>
               )}
             </div>

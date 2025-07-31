@@ -8,6 +8,7 @@ export const postRouter = createTRPCRouter({
     try {
       console.log("📡 Recebida requisição para buscar posts...");
       return await prisma.post.findMany({
+        where: { published: true }, // 🔥 FILTRO ADICIONADO - apenas posts publicados
         orderBy: { createdAt: "desc" },
         select: {
           id: true,
@@ -245,6 +246,7 @@ export const postRouter = createTRPCRouter({
 
   recent: publicProcedure.query(async () => {
     return await prisma.post.findMany({
+      where: { published: true }, // 🔥 FILTRO ADICIONADO - apenas posts publicados
       orderBy: { createdAt: "desc" },
       take: 5,
     });
@@ -252,6 +254,7 @@ export const postRouter = createTRPCRouter({
 
   mostRead: publicProcedure.query(async () => {
     return await prisma.post.findMany({
+      where: { published: true }, // 🔥 FILTRO ADICIONADO - apenas posts publicados
       orderBy: { viewCount: "desc" },
       take: 5,
     });
@@ -262,7 +265,10 @@ export const postRouter = createTRPCRouter({
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     return await prisma.post.findMany({
-      where: { createdAt: { gte: sevenDaysAgo } },
+      where: {
+        published: true, // 🔥 FILTRO ADICIONADO - apenas posts publicados
+        createdAt: { gte: sevenDaysAgo }
+      },
       orderBy: { viewCount: "desc" },
       take: 5,
     });
@@ -297,7 +303,33 @@ export const postRouter = createTRPCRouter({
 
       return ctx.db.post.update({
         where: { id: input.id },
-        data: { published: input.published },
+        data: {
+          published: input.published,
+          publishedAt: input.published ? new Date() : null,
+        },
+      });
+    }),
+
+  // Função para agendar publicação (admin)
+  schedule: protectedProcedure
+    .input(z.object({
+      id: z.string(),
+      scheduledAt: z.date().optional(),
+      published: z.boolean(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      // Verificar se é admin
+      if (ctx.session.role !== "ADMIN") {
+        throw new Error("Acesso negado");
+      }
+
+      return ctx.db.post.update({
+        where: { id: input.id },
+        data: {
+          scheduledAt: input.scheduledAt,
+          published: input.published,
+          publishedAt: input.published ? new Date() : null,
+        },
       });
     }),
 });

@@ -25,17 +25,37 @@ export default function SpotifyPlaylist({ playlistUrl, className = '' }: Spotify
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Validar URL do Spotify
+  const validateSpotifyUrl = (url: string): boolean => {
+    const spotifyRegex = /^https:\/\/open\.spotify\.com\/(playlist|album|track)\/[a-zA-Z0-9]+(\?.*)?$/;
+    return spotifyRegex.test(url);
+  };
+
   // Extrair ID da playlist da URL
   const extractPlaylistId = (url: string) => {
-    const regex = /playlist\/([a-zA-Z0-9]+)/;
+    if (!validateSpotifyUrl(url)) {
+      return null;
+    }
+    const regex = /(playlist|album|track)\/([a-zA-Z0-9]+)/;
     const match = regex.exec(url);
-    return match ? match[1] : null;
+    return match ? match[2] : null;
   };
 
   useEffect(() => {
+    if (!playlistUrl) {
+      setIsLoading(false);
+      return;
+    }
+
+    if (!validateSpotifyUrl(playlistUrl)) {
+      setError('URL do Spotify inválida. Use: https://open.spotify.com/playlist/...');
+      setIsLoading(false);
+      return;
+    }
+
     const playlistId = extractPlaylistId(playlistUrl);
     if (!playlistId) {
-      setError('URL da playlist inválida');
+      setError('Não foi possível extrair o ID da playlist');
       setIsLoading(false);
       return;
     }

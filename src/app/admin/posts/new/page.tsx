@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { api } from "~/trpc/react";
-import { ArrowLeft, Upload, Eye, EyeOff, Save, FileText, Image, Bold, Italic, Code, Link as LinkIcon, List, ListOrdered, Quote, Hash, Music } from "lucide-react";
+import { ArrowLeft, Upload, Eye, EyeOff, Save, FileText, Image, Bold, Italic, Code, Link as LinkIcon, List, ListOrdered, Quote, Hash, Music, Calendar } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -21,7 +21,17 @@ export default function NewPostPage() {
     audioDuration: 0,
     spotifyPlaylistUrl: "",
     hasAudio: false,
+    published: false,
+    scheduledAt: null as Date | null,
   });
+  
+  const [schedulingData, setSchedulingData] = useState({
+    isScheduled: false,
+    scheduledDate: '',
+    scheduledTime: '',
+  });
+  
+  const [spotifyUrlError, setSpotifyUrlError] = useState<string | null>(null);
   
   const [showPreview, setShowPreview] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -40,6 +50,21 @@ export default function NewPostPage() {
       alert(`Erro ao criar post: ${error.message}`);
     },
   });
+
+  // Validar URL do Spotify
+  const validateSpotifyUrl = (url: string): boolean => {
+    const spotifyRegex = /^https:\/\/open\.spotify\.com\/(playlist|album|track)\/[a-zA-Z0-9]+(\?.*)?$/;
+    return spotifyRegex.test(url);
+  };
+
+  const handleSpotifyUrlChange = (url: string) => {
+    if (url && !validateSpotifyUrl(url)) {
+      setSpotifyUrlError('URL do Spotify inválida. Use: https://open.spotify.com/playlist/...');
+    } else {
+      setSpotifyUrlError(null);
+    }
+    setFormData(prev => ({ ...prev, spotifyPlaylistUrl: url }));
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -136,6 +161,14 @@ export default function NewPostPage() {
       return;
     }
 
+    // Preparar dados de agendamento
+    let scheduledAt = null;
+    if (schedulingData.isScheduled && schedulingData.scheduledDate && schedulingData.scheduledTime) {
+      const [year, month, day] = schedulingData.scheduledDate.split('-').map(Number);
+      const [hour, minute] = schedulingData.scheduledTime.split(':').map(Number);
+      scheduledAt = new Date(year, month - 1, day, hour, minute);
+    }
+
     const postData = {
       title: formData.title.trim(),
       content: formData.content.trim(),
@@ -144,6 +177,8 @@ export default function NewPostPage() {
       audioDuration: formData.audioDuration || undefined,
       spotifyPlaylistUrl: formData.spotifyPlaylistUrl || undefined,
       hasAudio: formData.hasAudio,
+      published: !schedulingData.isScheduled, // Publicar imediatamente se não agendado
+      scheduledAt: scheduledAt,
     };
 
     void createPostMutation.mutate(postData);
@@ -364,14 +399,90 @@ export default function NewPostPage() {
                 <input
                   type="url"
                   value={formData.spotifyPlaylistUrl}
-                  onChange={(e) => handleInputChange("spotifyPlaylistUrl", e.target.value)}
+                  onChange={(e) => handleSpotifyUrlChange(e.target.value)}
                   placeholder="https://open.spotify.com/playlist/..."
-                  className="w-full p-3 rounded-xl glass border border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all duration-200"
+                  className={`w-full p-3 rounded-xl glass border ${
+                    spotifyUrlError 
+                      ? 'border-red-300 dark:border-red-700' 
+                      : 'border-slate-200/50 dark:border-slate-700/50'
+                  } bg-white/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all duration-200`}
                 />
+                {spotifyUrlError && (
+                  <p className="text-xs text-red-500 dark:text-red-400 mt-1">
+                    {spotifyUrlError}
+                  </p>
+                )}
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   Adicione uma playlist relacionada ao conteúdo do post
                 </p>
               </div>
+            </div>
+          </div>
+
+          {/* Agendamento de Publicação */}
+          <div className="glass-card rounded-2xl p-6">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+              <Calendar className="w-4 h-4 inline mr-2" />
+              Agendamento de Publicação
+            </label>
+            
+            <div className="space-y-4">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={schedulingData.isScheduled}
+                  onChange={(e) => setSchedulingData(prev => ({
+                    ...prev,
+                    isScheduled: e.target.checked
+                  }))}
+                  className="rounded border-slate-300"
+                />
+                <span className="text-sm text-slate-600 dark:text-slate-400">
+                  Agendar publicação
+                </span>
+              </label>
+              
+              {schedulingData.isScheduled && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Data
+                    </label>
+                    <input
+                      type="date"
+                      value={schedulingData.scheduledDate}
+                      onChange={(e) => setSchedulingData(prev => ({
+                        ...prev,
+                        scheduledDate: e.target.value
+                      }))}
+                      min={new Date().toISOString().split('T')[0]}
+                      className="w-full p-3 rounded-xl glass border border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all duration-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Hora
+                    </label>
+                    <input
+                      type="time"
+                      value={schedulingData.scheduledTime}
+                      onChange={(e) => setSchedulingData(prev => ({
+                        ...prev,
+                        scheduledTime: e.target.value
+                      }))}
+                      className="w-full p-3 rounded-xl glass border border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all duration-200"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {schedulingData.isScheduled && (
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    <strong>Agendado:</strong> O post será publicado automaticamente na data e hora especificadas.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
