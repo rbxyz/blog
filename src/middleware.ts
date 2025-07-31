@@ -7,7 +7,7 @@ export function middleware(request: NextRequest) {
   const regex = /^\/post\/([^\/]+)$/;
   const postMatch = regex.exec(request.nextUrl.pathname);
 
-  if (postMatch) {
+  if (postMatch && postMatch[1]) {
     const slug = postMatch[1];
 
     // Extrair informações do usuário
