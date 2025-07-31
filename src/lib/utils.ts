@@ -1,14 +1,15 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { randomBytes } from "crypto"
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
-// Gerar ID de sessão único para visitantes não autenticados
+// Gerar ID de sessão único para visitantes não autenticados usando Web Crypto API
 export function generateSessionId(): string {
-    return randomBytes(16).toString('hex');
+    const array = new Uint8Array(16);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
 // Extrair informações do request para identificação de usuário
