@@ -11,19 +11,26 @@ const loginSchema = z.object({
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json() as { email: string; password: string };
+        console.log('🔍 Login attempt:', { email: body.email, hasPassword: !!body.password });
 
         // Validar dados de entrada
         const validatedData = loginSchema.parse(body);
+        console.log('✅ Validation passed');
 
         // Autenticar usuário
+        console.log('🔐 Calling authenticateUser...');
         const result = await authenticateUser(validatedData.email, validatedData.password);
+        console.log('🔍 Authentication result:', result ? 'SUCCESS' : 'FAIL');
 
         if (!result) {
+            console.log('❌ Authentication failed');
             return NextResponse.json(
                 { error: 'E-mail ou senha incorretos' },
                 { status: 401 }
             );
         }
+
+        console.log('✅ Authentication successful, creating response...');
 
         // Criar response com cookie de sessão
         const response = NextResponse.json(
@@ -43,9 +50,10 @@ export async function POST(request: NextRequest) {
             path: '/',
         });
 
+        console.log('🍪 Cookie set, returning response');
         return response;
     } catch (error) {
-        console.error('Erro no login:', error);
+        console.error('💥 Error in login:', error);
 
         if (error instanceof z.ZodError) {
             return NextResponse.json(

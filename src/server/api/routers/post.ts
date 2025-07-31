@@ -45,12 +45,6 @@ export const postRouter = createTRPCRouter({
 
       if (!post) throw new Error("Post não encontrado");
 
-      // Incrementa visualizações
-      await prisma.post.update({
-        where: { id: input },
-        data: { viewCount: { increment: 1 } },
-      });
-
       return post;
     } catch (error) {
       console.error("🔥 Erro ao buscar post:", error);
@@ -66,11 +60,6 @@ export const postRouter = createTRPCRouter({
 
       if (!post) throw new Error("Post não encontrado");
 
-      await prisma.post.update({
-        where: { slug: input },
-        data: { viewCount: { increment: 1 } },
-      });
-
       return post;
     } catch (error) {
       console.error("🔥 Erro ao buscar post:", error);
@@ -84,6 +73,11 @@ export const postRouter = createTRPCRouter({
         title: z.string().min(5),
         content: z.string().min(10),
         imageUrl: z.string().optional(),
+        scheduledAt: z.date().optional(),
+        audioUrl: z.string().optional(),
+        audioDuration: z.number().optional(),
+        spotifyPlaylistUrl: z.string().optional(),
+        hasAudio: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -123,6 +117,11 @@ export const postRouter = createTRPCRouter({
           imageUrl: input.imageUrl,
           authorId: ctx.session.id,
           published: false,
+          scheduledAt: input.scheduledAt,
+          audioUrl: input.audioUrl,
+          audioDuration: input.audioDuration,
+          spotifyPlaylistUrl: input.spotifyPlaylistUrl,
+          hasAudio: input.hasAudio ?? false,
         };
 
         console.log("💾 Criando post no banco:", postData);
@@ -156,6 +155,12 @@ export const postRouter = createTRPCRouter({
         title: z.string().min(5),
         content: z.string().min(5),
         imageUrl: z.string().optional(),
+        scheduledAt: z.date().optional(),
+        published: z.boolean().optional(),
+        audioUrl: z.string().optional(),
+        audioDuration: z.number().optional(),
+        spotifyPlaylistUrl: z.string().optional(),
+        hasAudio: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {

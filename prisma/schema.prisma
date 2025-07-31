@@ -22,6 +22,7 @@ model User {
   posts    Post[]
   sessions Session[]
   comments Comment[]
+  views    PostView[]
 
   @@map("users")
 }
@@ -50,10 +51,21 @@ model Post {
   authorId   String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  scheduledAt DateTime? // Nova data para agendamento
+  publishedAt DateTime? // Data real de publicação
+  
+  // Podcast fields
+  audioUrl   String?  // URL do arquivo de áudio
+  audioDuration Int?  // Duração em segundos
+  spotifyPlaylistUrl String? // URL da playlist do Spotify
+  hasAudio   Boolean  @default(false) // Flag para indicar se tem áudio
 
   // Relations
   author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments Comment[]
+  views    PostView[]
+  emailLogs NewsletterEmailLog[]
+  newsletterQueues NewsletterQueue[]
 
   @@map("posts")
 }
@@ -74,10 +86,142 @@ model Comment {
   @@map("comments")
 }
 
+model PostView {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    String?  // Pode ser null para usuários não autenticados
+  sessionId String   // Identificador único da sessão do navegador
+  ipAddress String?  // Endereço IP para detecção adicional
+  userAgent String?  // User agent para identificação
+  createdAt DateTime @default(now())
+
+  // Relations
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([postId, sessionId]) // Garante uma visualização única por sessão
+  @@map("post_views")
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  isActive  Boolean  @default(true)
+  subscribedAt DateTime @default(now())
+  unsubscribedAt DateTime?
+  source    String?  // Como se inscreveu (formulário, admin, etc.)
+  metadata  Json?    // Dados adicionais como IP, user agent, etc.
+
+  // Relations
+  emailLogs NewsletterEmailLog[]
+
+  @@map("newsletter_subscribers")
+}
+
+model NewsletterEmailLog {
+  id           String      @id @default(uuid())
+  subscriberId String
+  postId       String?
+  emailType    EmailType
+  status       EmailStatus
+  sentAt       DateTime    @default(now())
+  openedAt     DateTime?
+  clickedAt    DateTime?
+  error        String?
+  trackingId   String      @unique @default(uuid()) // ID único para tracking
+  openCount    Int         @default(0) // Contador de aberturas
+  clickCount   Int         @default(0) // Contador de cliques
+  lastOpenedAt DateTime?   // Última vez que foi aberto
+  lastClickedAt DateTime?  // Última vez que foi clicado
+
+  // Relations
+  subscriber NewsletterSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  post       Post?               @relation(fields: [postId], references: [id], onDelete: SetNull)
+
+  @@map("newsletter_email_logs")
+}
+
+model NewsletterTemplate {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  htmlContent String   // Template HTML
+  cssContent  String?  // CSS personalizado
+  variables   Json?    // Variáveis disponíveis no template
+  isDefault   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("newsletter_templates")
+}
+
+model NewsletterQueue {
+  id        String   @id @default(uuid())
+  postId    String
+  status    QueueStatus
+  priority  Int      @default(0)
+  scheduledAt DateTime?
+  startedAt DateTime?
+  completedAt DateTime?
+  error     String?
+  progress  Int      @default(0) // Progresso em porcentagem
+  totalSubscribers Int @default(0)
+  sentCount Int      @default(0)
+  failedCount Int    @default(0)
+
+  // Relations
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("newsletter_queues")
+}
+
+model SmtpConfig {
+  id        String   @id @default(uuid())
+  host      String
+  port      Int
+  secure    Boolean  @default(true)
+  username  String
+  password  String
+  fromEmail String
+  fromName  String
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("smtp_configs")
+}
+
 enum Role {
   USER
   ADMIN
   EDITOR
+}
+
+enum EmailType {
+  NEWSLETTER
+  WELCOME
+  UNSUBSCRIBE
+  CONFIRMATION
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  FAILED
+  BOUNCED
+}
+
+enum QueueStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
 }
 
 

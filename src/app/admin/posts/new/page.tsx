@@ -2,12 +2,13 @@
 
 import { useState, useRef } from "react";
 import { api } from "~/trpc/react";
-import { ArrowLeft, Upload, Eye, EyeOff, Save, FileText, Image, Bold, Italic, Code, Link as LinkIcon, List, ListOrdered, Quote, Hash } from "lucide-react";
+import { ArrowLeft, Upload, Eye, EyeOff, Save, FileText, Image, Bold, Italic, Code, Link as LinkIcon, List, ListOrdered, Quote, Hash, Music } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
+import AudioUpload from "~/app/components/AudioUpload";
 
 export default function NewPostPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -16,6 +17,10 @@ export default function NewPostPage() {
     title: "",
     content: "",
     imageUrl: "",
+    audioUrl: "",
+    audioDuration: 0,
+    spotifyPlaylistUrl: "",
+    hasAudio: false,
   });
   
   const [showPreview, setShowPreview] = useState(false);
@@ -77,6 +82,28 @@ export default function NewPostPage() {
     }
   };
 
+  const handleAudioUpload = (file: File, duration: number) => {
+    // Em produção, você faria upload para um serviço como AWS S3
+    // Por enquanto, vamos simular com uma URL local
+    const audioUrl = URL.createObjectURL(file);
+    
+    setFormData(prev => ({
+      ...prev,
+      audioUrl,
+      audioDuration: duration,
+      hasAudio: true,
+    }));
+  };
+
+  const handleAudioRemove = () => {
+    setFormData(prev => ({
+      ...prev,
+      audioUrl: "",
+      audioDuration: 0,
+      hasAudio: false,
+    }));
+  };
+
   const insertMarkdown = (before: string, after = "") => {
     const textarea = document.getElementById("content-textarea") as HTMLTextAreaElement;
     if (!textarea) return;
@@ -113,6 +140,10 @@ export default function NewPostPage() {
       title: formData.title.trim(),
       content: formData.content.trim(),
       imageUrl: formData.imageUrl ?? undefined,
+      audioUrl: formData.audioUrl || undefined,
+      audioDuration: formData.audioDuration || undefined,
+      spotifyPlaylistUrl: formData.spotifyPlaylistUrl || undefined,
+      hasAudio: formData.hasAudio,
     };
 
     void createPostMutation.mutate(postData);
@@ -300,7 +331,7 @@ export default function NewPostPage() {
                   <div className="absolute -inset-2 bg-gradient-to-r from-primary-500/20 to-secondary-500/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <img
                     src={formData.imageUrl}
-                    alt="Preview"
+                    alt="Preview da imagem de capa"
                     className="relative w-full max-h-64 object-cover rounded-xl shadow-lg transition-transform duration-500 group-hover:scale-[1.02]"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
@@ -308,6 +339,39 @@ export default function NewPostPage() {
                   />
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Áudio do Post */}
+          <div className="glass-card rounded-2xl p-6">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+              <Music className="w-4 h-4 inline mr-2" />
+              Áudio do Post (Podcast)
+            </label>
+            
+            <div className="space-y-4">
+              <AudioUpload
+                onUpload={handleAudioUpload}
+                onRemove={handleAudioRemove}
+                currentAudioUrl={formData.audioUrl}
+              />
+
+              {/* URL da Playlist do Spotify */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  URL da Playlist do Spotify (opcional)
+                </label>
+                <input
+                  type="url"
+                  value={formData.spotifyPlaylistUrl}
+                  onChange={(e) => handleInputChange("spotifyPlaylistUrl", e.target.value)}
+                  placeholder="https://open.spotify.com/playlist/..."
+                  className="w-full p-3 rounded-xl glass border border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all duration-200"
+                />
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Adicione uma playlist relacionada ao conteúdo do post
+                </p>
+              </div>
             </div>
           </div>
 

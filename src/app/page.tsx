@@ -3,6 +3,7 @@
 import type { Post } from "@prisma/client";
 import { trpc } from "~/trpc/react";
 import SearchBy from "./components/SearchBy";
+import NewsletterSignup from "./components/NewsletterSignup";
 import Link from "next/link";
 import { Calendar, Eye, ArrowRight, Sparkles, BookOpen, TrendingUp } from "lucide-react";
 import { createExcerpt } from "~/lib/utils";
@@ -61,14 +62,13 @@ export default function HomePage() {
             </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <span className="gradient-text">Blog de Tecnologia</span>
+              <span className="gradient-text">Tech & Marketing</span>
               <br />
-              <span className="text-slate-800 dark:text-slate-200">& Inovação</span>
+              <span className="text-slate-800 dark:text-slate-200">& Business</span>
             </h1>
             
             <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-              Explore artigos sobre desenvolvimento web, tecnologias emergentes, 
-              boas práticas e insights do mundo da programação.
+              Explore artigos sobre tecnologias - dev. & ia&apos;s, marketing & mundo e business & startups.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
@@ -114,7 +114,7 @@ export default function HomePage() {
               <span className="gradient-text">Últimas Publicações</span>
             </h2>
             <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-              Descubra os artigos mais recentes sobre tecnologia, desenvolvimento e inovação
+              Descubra os artigos mais recentes sobre tecnologias, marketing e business
             </p>
           </div>
 
@@ -192,6 +192,13 @@ export default function HomePage() {
               </div>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="py-16 px-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+        <div className="max-w-4xl mx-auto">
+          <NewsletterSignup />
         </div>
       </section>
     </div>

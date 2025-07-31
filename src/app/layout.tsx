@@ -6,14 +6,14 @@ import Navbar from "~/app/components/Navbar";
 import ThemeProvider from "~/app/components/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "Blog | Ruan - Dev & Tech",
-  description: "Blog pessoal sobre desenvolvimento, tecnologia e inovação por Ruan Bueno",
+  title: "Tech & Marketing & Business | Ruan",
+  description: "Blog sobre tecnologias, marketing e business por Ruan Bueno",
   icons: [{ rel: "icon", url: "/logo.png" }],
-  keywords: ["blog", "desenvolvimento", "tecnologia", "programação", "web development"],
+  keywords: ["blog", "tecnologia", "marketing", "business", "desenvolvimento", "ia", "startups"],
   authors: [{ name: "Ruan Bueno" }],
   openGraph: {
-    title: "Blog | Ruan - Dev. & Tech",
-    description: "Blog pessoal sobre desenvolvimento, tecnologia e inovação",
+    title: "Tech & Marketing & Business | Ruan",
+    description: "Blog sobre tecnologias, marketing e business",
     type: "website",
     locale: "pt_BR"
   }

@@ -11,6 +11,10 @@ import { cookies } from "next/headers";
 import { validateSession } from "~/lib/auth";
 import Comments from "~/app/components/Comments";
 import ShareButton from "~/app/components/ShareButton";
+import ViewTracker from "~/app/components/ViewTracker";
+import AboutMe from "~/app/components/AboutMe";
+import AudioPlayer from "~/app/components/AudioPlayer";
+import SpotifyPlaylist from "~/app/components/SpotifyPlaylist";
 import "~/styles/markdown.css";
 
 // ✅ Corrigindo a tipagem do `params`
@@ -20,7 +24,17 @@ export default async function PostPage({ params }: { params: PageParams }) {
   const { slug } = await params; // 🔹 Aguarda o `params` ser resolvido corretamente
   if (!slug) return notFound();
 
-  const post = await prisma.post.findUnique({ where: { slug } });
+  const post = await prisma.post.findUnique({ 
+    where: { slug },
+    include: {
+      views: {
+        select: {
+          id: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
 
   if (!post) return notFound();
 
@@ -35,6 +49,9 @@ export default async function PostPage({ params }: { params: PageParams }) {
 
   return (
     <div className="min-h-screen">
+      {/* View Tracker - Componente invisível para rastrear visualizações */}
+      <ViewTracker slug={post.slug} />
+      
       {/* Hero Section */}
       <section className="relative py-12 px-6 overflow-hidden">
         <div className="max-w-4xl mx-auto">
@@ -82,6 +99,17 @@ export default async function PostPage({ params }: { params: PageParams }) {
             </div>
           </div>
 
+          {/* Audio Player */}
+          {post.hasAudio && post.audioUrl && (
+            <div className="mb-8">
+              <AudioPlayer
+                audioUrl={post.audioUrl}
+                title={post.title}
+                duration={post.audioDuration ?? undefined}
+              />
+            </div>
+          )}
+
           {/* Featured image */}
           {post.imageUrl && (
             <div className="relative mb-12 group">
@@ -98,8 +126,34 @@ export default async function PostPage({ params }: { params: PageParams }) {
 
       {/* Post content */}
       <section className="py-8 px-6">
-        <div className="max-w-4xl mx-auto">
-          <article className="glass-card rounded-3xl p-8 md:p-12">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Sidebar */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Audio Player Sidebar */}
+              {post.hasAudio && post.audioUrl && (
+                <div className="sticky top-8">
+                  <AudioPlayer
+                    audioUrl={post.audioUrl}
+                    title={post.title}
+                    duration={post.audioDuration ?? undefined}
+                    className="mb-6"
+                  />
+                </div>
+              )}
+
+              {/* Spotify Playlist */}
+              {post.spotifyPlaylistUrl && (
+                <SpotifyPlaylist
+                  playlistUrl={post.spotifyPlaylistUrl}
+                  className="sticky top-8"
+                />
+              )}
+            </div>
+
+            {/* Main Content */}
+            <div className="lg:col-span-3">
+              <article className="glass-card rounded-3xl p-8 md:p-12">
             <div className="markdown-container prose prose-lg dark:prose-invert max-w-none">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
@@ -197,8 +251,10 @@ export default async function PostPage({ params }: { params: PageParams }) {
               </ReactMarkdown>
             </div>
           </article>
+        </div>
+      </div>
 
-          {/* Call to action */}
+      {/* Call to action */}
           <div className="mt-12 text-center">
             <div className="glass-card rounded-2xl p-8">
               <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-3">
@@ -224,6 +280,11 @@ export default async function PostPage({ params }: { params: PageParams }) {
                 </Link>
               </div>
             </div>
+          </div>
+
+          {/* About Me Section */}
+          <div className="mt-12">
+            <AboutMe />
           </div>
 
           {/* Comments Section */}
@@ -261,10 +322,10 @@ export async function generateMetadata({
 
   const description = post.content 
     ? post.content.slice(0, 160).replace(/[#*`]/g, '') + "..."
-    : `Leia ${post.title} no Blog de Tecnologia & Inovação.`;
+    : `Leia ${post.title} no Tech & Marketing & Business.`;
 
   return {
-    title: `${post.title} | Blog Ruan`,
+    title: `${post.title} | Tech & Marketing & Business`,
     description,
     openGraph: {
       title: post.title,

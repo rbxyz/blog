@@ -1,3 +1,116 @@
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
+import { randomBytes } from "crypto"
+
+export function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs))
+}
+
+// Gerar ID de sessão único para visitantes não autenticados
+export function generateSessionId(): string {
+    return randomBytes(16).toString('hex');
+}
+
+// Extrair informações do request para identificação de usuário
+export function extractUserInfo(request: Request): {
+    sessionId: string;
+    ipAddress?: string;
+    userAgent?: string;
+} {
+    const headers = request.headers;
+    const userAgent = headers.get('user-agent') ?? undefined;
+
+    // Tentar obter IP real (considerando proxies)
+    let ipAddress: string | undefined;
+    const forwardedFor = headers.get('x-forwarded-for');
+    const realIp = headers.get('x-real-ip');
+
+    if (forwardedFor) {
+        ipAddress = forwardedFor.split(',')[0].trim();
+    } else if (realIp) {
+        ipAddress = realIp;
+    }
+
+    // Gerar sessionId baseado em headers para consistência
+    const sessionId = generateSessionId();
+
+    return {
+        sessionId,
+        ipAddress,
+        userAgent,
+    };
+}
+
+// Verificar se uma visualização já foi registrada
+export async function hasViewedPost(
+    postId: string,
+    sessionId: string,
+    userId?: string
+): Promise<boolean> {
+    const { prisma } = await import("~/server/db");
+
+    const existingView = await prisma.postView.findFirst({
+        where: {
+            postId,
+            sessionId,
+            ...(userId && { userId }),
+        },
+    });
+
+    return !!existingView;
+}
+
+// Registrar uma nova visualização
+export async function recordPostView(
+    postId: string,
+    sessionId: string,
+    userId?: string,
+    ipAddress?: string,
+    userAgent?: string
+): Promise<void> {
+    const { prisma } = await import("~/server/db");
+
+    try {
+        // Usar transação para garantir consistência
+        await prisma.$transaction(async (tx) => {
+            // Verificar se já existe uma visualização para esta sessão
+            const existingView = await tx.postView.findFirst({
+                where: {
+                    postId,
+                    sessionId,
+                    ...(userId && { userId }),
+                },
+            });
+
+            if (existingView) {
+                console.log('Visualização já registrada para esta sessão');
+                return;
+            }
+
+            // Criar nova visualização
+            await tx.postView.create({
+                data: {
+                    postId,
+                    sessionId,
+                    userId,
+                    ipAddress,
+                    userAgent,
+                },
+            });
+
+            // Atualizar o contador total de visualizações
+            await tx.post.update({
+                where: { id: postId },
+                data: { viewCount: { increment: 1 } },
+            });
+
+            console.log('Nova visualização registrada com sucesso');
+        });
+    } catch (error) {
+        console.error('Erro ao registrar visualização:', error);
+    }
+}
+
 export function stripMarkdown(text: string): string {
     if (!text) return '';
 

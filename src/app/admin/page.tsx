@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { api } from "~/trpc/react";
-import { Plus, Edit, Trash2, Eye, MessageSquare, Users, FileText, TrendingUp, CheckCircle, XCircle, RotateCcw } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, MessageSquare, Users, FileText, TrendingUp, CheckCircle, XCircle, RotateCcw, Mail } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminPage() {
@@ -11,6 +11,8 @@ export default function AdminPage() {
   // Queries
   const { data: posts } = api.post.getAll.useQuery();
   const { data: comments } = api.comment.getAll.useQuery();
+  const { data: newsletterStats } = api.newsletter.getStats.useQuery();
+  const { data: smtpConfig } = api.newsletter.getSmtpConfig.useQuery();
 
   // Mutations
   const deletePostMutation = api.post.delete.useMutation({
@@ -70,6 +72,8 @@ export default function AdminPage() {
     { id: "overview", label: "Visão Geral", icon: TrendingUp },
     { id: "posts", label: "Posts", icon: FileText },
     { id: "comments", label: "Comentários", icon: MessageSquare },
+    { id: "analytics", label: "Analytics", icon: Eye },
+    { id: "newsletter", label: "Newsletter", icon: Mail },
   ];
 
   return (
@@ -430,6 +434,301 @@ export default function AdminPage() {
                   </p>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Analytics Tab */}
+        {activeTab === "analytics" && (
+          <div className="space-y-8">
+            <div className="glass-card rounded-2xl p-8">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">
+                Estatísticas de Visualizações
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div className="glass-card rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <Eye className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                    <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                      Total
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+                    {totalViews.toLocaleString()}
+                  </h3>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm">
+                    Visualizações totais
+                  </p>
+                </div>
+
+                <div className="glass-card rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <Users className="w-6 h-6 text-secondary-600 dark:text-secondary-400" />
+                    <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                      Únicas
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+                    {posts?.reduce((sum, post) => sum + (post.viewCount ?? 0), 0)?.toLocaleString() ?? 0}
+                  </h3>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm">
+                    Visualizações únicas
+                  </p>
+                </div>
+
+                <div className="glass-card rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <FileText className="w-6 h-6 text-accent-600 dark:text-accent-400" />
+                    <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                      Posts
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+                    {publishedPosts}
+                  </h3>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm">
+                    Posts publicados
+                  </p>
+                </div>
+              </div>
+
+              {/* Posts mais visualizados */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                  Posts Mais Visualizados
+                </h3>
+                {posts?.sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0)).slice(0, 5).map((post) => (
+                  <div key={post.id} className="flex items-center justify-between p-4 glass rounded-xl">
+                    <div>
+                      <h4 className="font-medium text-slate-800 dark:text-slate-200">
+                        {post.title}
+                      </h4>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        {post.viewCount ?? 0} visualizações
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <span className="px-3 py-1 rounded-lg text-sm font-medium bg-primary-100 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400">
+                        {post.viewCount?.toLocaleString() ?? 0} views
+                      </span>
+                      <Link 
+                        href={`/api/posts/${post.slug}/stats`}
+                        target="_blank"
+                        className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                        title="Ver estatísticas detalhadas"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Newsletter Tab */}
+        {activeTab === "newsletter" && (
+          <div className="space-y-8">
+            {/* Newsletter Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="glass-card rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Mail className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+                  <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                    Inscritos
+                  </span>
+                </div>
+                <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+                  {newsletterStats?.activeSubscribers?.toLocaleString() ?? 0}
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm">
+                  Inscritos ativos
+                </p>
+              </div>
+
+              <div className="glass-card rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <MessageSquare className="w-8 h-8 text-secondary-600 dark:text-secondary-400" />
+                  <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                    Enviados
+                  </span>
+                </div>
+                <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+                  {newsletterStats?.totalEmailsSent?.toLocaleString() ?? 0}
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm">
+                  Emails enviados
+                </p>
+              </div>
+
+              <div className="glass-card rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Eye className="w-8 h-8 text-accent-600 dark:text-accent-400" />
+                  <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                    Taxa Abertura
+                  </span>
+                </div>
+                <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+                  {newsletterStats?.openRate?.toFixed(1) ?? 0}%
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm">
+                  Taxa de abertura
+                </p>
+              </div>
+
+              <div className="glass-card rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <TrendingUp className="w-8 h-8 text-green-600 dark:text-green-400" />
+                  <span className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                    Taxa Clique
+                  </span>
+                </div>
+                <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+                  {newsletterStats?.clickRate?.toFixed(1) ?? 0}%
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm">
+                  Taxa de clique
+                </p>
+              </div>
+            </div>
+
+            {/* SMTP Configuration */}
+            <div className="glass-card rounded-2xl p-8">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">
+                Configuração SMTP
+              </h2>
+              
+              {smtpConfig ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Servidor SMTP
+                    </label>
+                    <input
+                      type="text"
+                      defaultValue={smtpConfig.host}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                      placeholder="smtp.gmail.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Porta
+                    </label>
+                    <input
+                      type="number"
+                      defaultValue={smtpConfig.port}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                      placeholder="587"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      defaultValue={smtpConfig.fromEmail}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                      placeholder="seu@email.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Nome do Remetente
+                    </label>
+                    <input
+                      type="text"
+                      defaultValue={smtpConfig.fromName}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                      placeholder="Blog Ruan"
+                    />
+                  </div>
+                  
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Senha/Token
+                    </label>
+                    <input
+                      type="password"
+                      defaultValue={smtpConfig.password}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                      placeholder="Sua senha ou token de app"
+                    />
+                  </div>
+                  
+                  <div className="md:col-span-2">
+                    <button className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
+                      Salvar Configuração
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Mail className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                  <p className="text-slate-500 dark:text-slate-400">
+                    Nenhuma configuração SMTP encontrada. Configure para enviar newsletters.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Newsletter Actions */}
+            <div className="glass-card rounded-2xl p-8">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">
+                Ações da Newsletter
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-slate-800 dark:text-slate-200">
+                    Enviar Newsletter
+                  </h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Selecione um post para enviar como newsletter para todos os inscritos.
+                  </p>
+                  
+                  <select className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+                    <option value="">Selecione um post...</option>
+                    {posts?.map((post) => (
+                      <option key={post.id} value={post.id}>
+                        {post.title}
+                      </option>
+                    ))}
+                  </select>
+                  
+                  <button className="px-6 py-3 bg-secondary-600 hover:bg-secondary-700 text-white rounded-lg font-medium transition-colors">
+                    Enviar Newsletter
+                  </button>
+                </div>
+                
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-slate-800 dark:text-slate-200">
+                    Gerar HTML
+                  </h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Gere o HTML da newsletter para um post específico.
+                  </p>
+                  
+                  <select className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+                    <option value="">Selecione um post...</option>
+                    {posts?.map((post) => (
+                      <option key={post.id} value={post.id}>
+                        {post.title}
+                      </option>
+                    ))}
+                  </select>
+                  
+                  <button className="px-6 py-3 bg-accent-600 hover:bg-accent-700 text-white rounded-lg font-medium transition-colors">
+                    Gerar HTML
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
