@@ -44,13 +44,13 @@ export const newsletterRouter = createTRPCRouter({
                         // Reativar inscrição
                         await prisma.newsletterSubscriber.update({
                             where: { id: existingSubscriber.id },
-                            data: {
-                                isActive: true,
-                                unsubscribedAt: null,
-                                name: input.name,
-                                source: input.source,
-                                metadata: input.metadata as unknown as any,
-                            },
+                                                    data: {
+                            isActive: true,
+                            unsubscribedAt: null,
+                            name: input.name,
+                            source: input.source,
+                            ...(input.metadata && { metadata: input.metadata }),
+                        },
                         });
                         return { success: true, message: "Inscrição reativada com sucesso" };
                     }
@@ -62,7 +62,7 @@ export const newsletterRouter = createTRPCRouter({
                         email: input.email,
                         name: input.name,
                         source: input.source,
-                        metadata: input.metadata as unknown as any,
+                        ...(input.metadata && { metadata: input.metadata }),
                     },
                 });
 

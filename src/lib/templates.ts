@@ -234,9 +234,9 @@ class TemplateService {
     console.log('Atualizando template:', templateId);
     return {
       id: templateId,
-      name: data.name || 'Template Atualizado',
+      name: data.name ?? 'Template Atualizado',
       description: data.description,
-      htmlContent: data.htmlContent || '',
+      htmlContent: data.htmlContent ?? '',
       cssContent: data.cssContent,
       isActive: data.isActive ?? true,
       isDefault: false,
