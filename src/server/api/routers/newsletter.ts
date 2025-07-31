@@ -49,7 +49,7 @@ export const newsletterRouter = createTRPCRouter({
                                 unsubscribedAt: null,
                                 name: input.name,
                                 source: input.source,
-                                metadata: input.metadata,
+                                metadata: input.metadata as unknown as any,
                             },
                         });
                         return { success: true, message: "Inscrição reativada com sucesso" };
@@ -62,7 +62,7 @@ export const newsletterRouter = createTRPCRouter({
                         email: input.email,
                         name: input.name,
                         source: input.source,
-                        metadata: input.metadata,
+                        metadata: input.metadata as unknown as any,
                     },
                 });
 
