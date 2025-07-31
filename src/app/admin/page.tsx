@@ -13,6 +13,72 @@ export default function AdminPage() {
   const { data: comments } = api.comment.getAll.useQuery();
   const { data: newsletterStats } = api.newsletter.getStats.useQuery();
   const { data: smtpConfig } = api.newsletter.getSmtpConfig.useQuery();
+  const { data: subscribers } = api.newsletter.getSubscribers.useQuery({ page: 1, limit: 10 });
+
+  // Newsletter mutations
+  const updateSmtpConfigMutation = api.newsletter.updateSmtpConfig.useMutation({
+    onSuccess: () => {
+      window.location.reload();
+    },
+  });
+
+  const sendNewsletterMutation = api.newsletter.sendNewsletter.useMutation({
+    onSuccess: (data) => {
+      alert(data.message);
+      window.location.reload();
+    },
+  });
+
+  // State para newsletter
+  const [selectedPostId, setSelectedPostId] = useState<string>("");
+  const [smtpFormData, setSmtpFormData] = useState({
+    host: smtpConfig?.host ?? "",
+    port: smtpConfig?.port ?? 587,
+    secure: smtpConfig?.secure ?? false,
+    username: smtpConfig?.username ?? "",
+    password: smtpConfig?.password ?? "",
+    fromEmail: smtpConfig?.fromEmail ?? "",
+    fromName: smtpConfig?.fromName ?? "",
+    isActive: smtpConfig?.isActive ?? false,
+  });
+
+  const handleSmtpSubmit = () => {
+    updateSmtpConfigMutation.mutate(smtpFormData);
+  };
+
+  const handleSendNewsletter = () => {
+    if (!selectedPostId) {
+      alert("Selecione um post para enviar a newsletter");
+      return;
+    }
+    sendNewsletterMutation.mutate({ postId: selectedPostId });
+  };
+
+  const handleGenerateHTML = () => {
+    if (!selectedPostId) {
+      alert("Selecione um post para gerar o HTML");
+      return;
+    }
+    
+    // Usar uma query com refetch
+    const { refetch } = api.newsletter.generateNewsletterHTML.useQuery(
+      { postId: selectedPostId },
+      { enabled: false }
+    );
+    
+    refetch().then((result) => {
+      if (result.data?.success && result.data.html) {
+        const newWindow = window.open('', '_blank');
+        if (newWindow) {
+          newWindow.document.write(result.data.html);
+          newWindow.document.close();
+        }
+      }
+    }).catch((error) => {
+      console.error("Erro ao gerar HTML:", error);
+      alert("Erro ao gerar HTML da newsletter");
+    });
+  };
 
   // Mutations
   const deletePostMutation = api.post.delete.useMutation({
@@ -600,82 +666,106 @@ export default function AdminPage() {
                 Configuração SMTP
               </h2>
               
-              {smtpConfig ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Servidor SMTP
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue={smtpConfig.host}
-                      className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                      placeholder="smtp.gmail.com"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Porta
-                    </label>
-                    <input
-                      type="number"
-                      defaultValue={smtpConfig.port}
-                      className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                      placeholder="587"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      defaultValue={smtpConfig.fromEmail}
-                      className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                      placeholder="seu@email.com"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Nome do Remetente
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue={smtpConfig.fromName}
-                      className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                      placeholder="Blog Ruan"
-                    />
-                  </div>
-                  
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Senha/Token
-                    </label>
-                    <input
-                      type="password"
-                      defaultValue={smtpConfig.password}
-                      className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                      placeholder="Sua senha ou token de app"
-                    />
-                  </div>
-                  
-                  <div className="md:col-span-2">
-                    <button className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
-                      Salvar Configuração
-                    </button>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Servidor SMTP
+                  </label>
+                  <input
+                    type="text"
+                    value={smtpFormData.host}
+                    onChange={(e) => setSmtpFormData({ ...smtpFormData, host: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                    placeholder="smtp.gmail.com"
+                  />
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Mail className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                  <p className="text-slate-500 dark:text-slate-400">
-                    Nenhuma configuração SMTP encontrada. Configure para enviar newsletters.
-                  </p>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Porta
+                  </label>
+                  <input
+                    type="number"
+                    value={smtpFormData.port}
+                    onChange={(e) => setSmtpFormData({ ...smtpFormData, port: parseInt(e.target.value) })}
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                    placeholder="587"
+                  />
                 </div>
-              )}
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={smtpFormData.fromEmail}
+                    onChange={(e) => setSmtpFormData({ ...smtpFormData, fromEmail: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                    placeholder="seu@email.com"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Nome do Remetente
+                  </label>
+                  <input
+                    type="text"
+                    value={smtpFormData.fromName}
+                    onChange={(e) => setSmtpFormData({ ...smtpFormData, fromName: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                    placeholder="Blog Ruan"
+                  />
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Senha/Token
+                  </label>
+                  <input
+                    type="password"
+                    value={smtpFormData.password}
+                    onChange={(e) => setSmtpFormData({ ...smtpFormData, password: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                    placeholder="Sua senha ou token de app"
+                  />
+                </div>
+                
+                <div className="md:col-span-2 flex items-center gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={smtpFormData.secure}
+                      onChange={(e) => setSmtpFormData({ ...smtpFormData, secure: e.target.checked })}
+                      className="rounded"
+                    />
+                    <span className="text-sm text-slate-700 dark:text-slate-300">Conexão segura (SSL/TLS)</span>
+                  </label>
+                </div>
+                
+                <div className="md:col-span-2 flex items-center gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={smtpFormData.isActive}
+                      onChange={(e) => setSmtpFormData({ ...smtpFormData, isActive: e.target.checked })}
+                      className="rounded"
+                    />
+                    <span className="text-sm text-slate-700 dark:text-slate-300">Ativar configuração</span>
+                  </label>
+                </div>
+                
+                <div className="md:col-span-2">
+                  <button 
+                    onClick={handleSmtpSubmit}
+                    disabled={updateSmtpConfigMutation.isPending}
+                    className="px-6 py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white rounded-lg font-medium transition-colors"
+                  >
+                    {updateSmtpConfigMutation.isPending ? "Salvando..." : "Salvar Configuração"}
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Newsletter Actions */}
@@ -693,7 +783,11 @@ export default function AdminPage() {
                     Selecione um post para enviar como newsletter para todos os inscritos.
                   </p>
                   
-                  <select className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+                  <select 
+                    value={selectedPostId}
+                    onChange={(e) => setSelectedPostId(e.target.value)}
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                  >
                     <option value="">Selecione um post...</option>
                     {posts?.map((post) => (
                       <option key={post.id} value={post.id}>
@@ -702,8 +796,12 @@ export default function AdminPage() {
                     ))}
                   </select>
                   
-                  <button className="px-6 py-3 bg-secondary-600 hover:bg-secondary-700 text-white rounded-lg font-medium transition-colors">
-                    Enviar Newsletter
+                  <button 
+                    onClick={handleSendNewsletter}
+                    disabled={sendNewsletterMutation.isPending || !selectedPostId}
+                    className="px-6 py-3 bg-secondary-600 hover:bg-secondary-700 disabled:bg-secondary-400 text-white rounded-lg font-medium transition-colors"
+                  >
+                    {sendNewsletterMutation.isPending ? "Enviando..." : "Enviar Newsletter"}
                   </button>
                 </div>
                 
@@ -715,7 +813,11 @@ export default function AdminPage() {
                     Gere o HTML da newsletter para um post específico.
                   </p>
                   
-                  <select className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+                  <select 
+                    value={selectedPostId}
+                    onChange={(e) => setSelectedPostId(e.target.value)}
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                  >
                     <option value="">Selecione um post...</option>
                     {posts?.map((post) => (
                       <option key={post.id} value={post.id}>
@@ -724,7 +826,11 @@ export default function AdminPage() {
                     ))}
                   </select>
                   
-                  <button className="px-6 py-3 bg-accent-600 hover:bg-accent-700 text-white rounded-lg font-medium transition-colors">
+                  <button 
+                    onClick={handleGenerateHTML}
+                    disabled={!selectedPostId}
+                    className="px-6 py-3 bg-accent-600 hover:bg-accent-700 disabled:bg-accent-400 text-white rounded-lg font-medium transition-colors"
+                  >
                     Gerar HTML
                   </button>
                 </div>

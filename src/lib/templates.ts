@@ -204,19 +204,23 @@ class TemplateService {
     cssContent?: string;
     variables?: Record<string, TemplateVariable>;
   }) {
-    // Simular criação de template (modelo não existe no schema atual)
-    console.log('Criando template:', data.name);
-    return {
-      id: `template-${Date.now()}`,
-      name: data.name,
-      description: data.description,
-      htmlContent: data.htmlContent,
-      cssContent: data.cssContent,
-      isActive: true,
-      isDefault: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    try {
+      const template = await prisma.newsletterTemplate.create({
+        data: {
+          name: data.name,
+          description: data.description,
+          htmlContent: data.htmlContent,
+          cssContent: data.cssContent,
+          variables: data.variables,
+          isActive: true,
+          isDefault: false,
+        },
+      });
+      return template;
+    } catch (error) {
+      console.error('Erro ao criar template:', error);
+      throw error;
+    }
   }
 
   async updateTemplate(

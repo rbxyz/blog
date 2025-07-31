@@ -57,26 +57,141 @@ class QueueService {
                 const { postId, queueId, subscriberIds, batchSize = 10 } = job.data;
                 console.log(`Processando newsletter para post ${postId}, fila ${queueId}`);
 
-                // Processar em lotes
-                for (let i = 0; i < subscriberIds.length; i += batchSize) {
-                    const batch = subscriberIds.slice(i, i + batchSize);
+                // Buscar dados do post
+                const post = await prisma.post.findUnique({
+                    where: { id: postId },
+                    include: { author: true },
+                });
 
-                    await Promise.all(batch.map(async (subscriberId) => {
+                if (!post) {
+                    throw new Error(`Post ${postId} não encontrado`);
+                }
+
+                // Buscar inscritos se não fornecidos
+                let subscribers = subscriberIds.length > 0
+                    ? await prisma.newsletterSubscriber.findMany({
+                        where: { id: { in: subscriberIds }, isActive: true }
+                    })
+                    : await prisma.newsletterSubscriber.findMany({
+                        where: { isActive: true }
+                    });
+
+                // Atualizar status da fila
+                await prisma.newsletterQueue.update({
+                    where: { id: queueId },
+                    data: {
+                        status: 'PROCESSING',
+                        startedAt: new Date(),
+                        totalSubscribers: subscribers.length,
+                    },
+                });
+
+                // Inicializar serviço de email
+                await emailService.initialize();
+
+                const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+                const postUrl = `${baseUrl}/post/${post.slug}`;
+
+                let successCount = 0;
+                let errorCount = 0;
+
+                // Processar em lotes
+                for (let i = 0; i < subscribers.length; i += batchSize) {
+                    const batch = subscribers.slice(i, i + batchSize);
+
+                    await Promise.all(batch.map(async (subscriber) => {
                         try {
-                            console.log(`Processando inscrito: ${subscriberId}`);
+                            const newsletterData = {
+                                postTitle: post.title,
+                                postContent: post.content,
+                                postImageUrl: post.imageUrl ?? undefined,
+                                postUrl,
+                                authorName: post.author.name ?? post.author.email,
+                                unsubscribeUrl: `${baseUrl}/newsletter/unsubscribe?email=${encodeURIComponent(subscriber.email)}`,
+                            };
+
+                            const html = emailService.generateNewsletterHTML(newsletterData);
+
+                            const emailSent = await emailService.sendEmail({
+                                to: subscriber.email,
+                                subject: `📝 ${post.title} - Tech & Marketing & Business`,
+                                html,
+                            });
+
+                            if (emailSent) {
+                                await emailService.logEmail(
+                                    subscriber.id,
+                                    'NEWSLETTER',
+                                    'SENT',
+                                    post.id
+                                );
+                                successCount++;
+                            } else {
+                                await emailService.logEmail(
+                                    subscriber.id,
+                                    'NEWSLETTER',
+                                    'FAILED',
+                                    post.id,
+                                    'Falha no envio'
+                                );
+                                errorCount++;
+                            }
                         } catch (error) {
-                            console.error(`Erro ao processar inscrito ${subscriberId}:`, error);
+                            console.error(`Erro ao enviar email para ${subscriber.email}:`, error);
+                            await emailService.logEmail(
+                                subscriber.id,
+                                'NEWSLETTER',
+                                'FAILED',
+                                post.id,
+                                error instanceof Error ? error.message : 'Erro desconhecido'
+                            );
+                            errorCount++;
                         }
                     }));
+
+                    // Atualizar progresso
+                    await prisma.newsletterQueue.update({
+                        where: { id: queueId },
+                        data: {
+                            progress: Math.round(((i + batchSize) / subscribers.length) * 100),
+                            sentCount: successCount,
+                            failedCount: errorCount,
+                        },
+                    });
 
                     // Pequena pausa entre lotes
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
 
-                console.log(`Newsletter processada com sucesso: ${queueId}`);
+                // Finalizar fila
+                await prisma.newsletterQueue.update({
+                    where: { id: queueId },
+                    data: {
+                        status: 'COMPLETED',
+                        completedAt: new Date(),
+                        progress: 100,
+                        sentCount: successCount,
+                        failedCount: errorCount,
+                    },
+                });
+
+                console.log(`Newsletter processada com sucesso: ${queueId} - ${successCount} sucessos, ${errorCount} erros`);
 
             } catch (error) {
                 console.error('Erro ao processar newsletter:', error);
+
+                // Marcar fila como falhada
+                try {
+                    await prisma.newsletterQueue.update({
+                        where: { id: job.data.queueId },
+                        data: {
+                            status: 'FAILED',
+                            error: error instanceof Error ? error.message : 'Erro desconhecido',
+                        },
+                    });
+                } catch (updateError) {
+                    console.error('Erro ao atualizar status da fila:', updateError);
+                }
             }
         });
 
