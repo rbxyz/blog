@@ -1,6 +1,5 @@
 "use client";
 
-import type { Post } from "@prisma/client";
 import { trpc } from "~/trpc/react";
 import SearchBy from "./components/SearchBy";
 import NewsletterSignup from "./components/NewsletterSignup";
@@ -59,25 +58,29 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative py-20 px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto">
+          {/* Floating elements */}
+          <div className="absolute top-10 left-10 w-20 h-20 rounded-full bg-gradient-to-br from-primary-400/20 to-secondary-400/20 blur-xl animate-float"></div>
+          <div className="absolute top-32 right-20 w-16 h-16 rounded-full bg-gradient-to-br from-accent-400/20 to-primary-400/20 blur-xl animate-float" style={{ animationDelay: '1s' }}></div>
+          
           <div className="text-center relative z-10">
-            <div className="inline-flex items-center space-x-2 glass-card rounded-full px-4 py-2 mb-8">
+            <div className="inline-flex items-center space-x-2 glass-card rounded-full px-4 py-2 mb-8 animate-fade-in-up">
               <Sparkles className="w-4 h-4 text-primary-500" />
               <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
                 Bem-vindo ao futuro do desenvolvimento
               </span>
             </div>
             
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               <span className="gradient-text">Tech & Marketing</span>
               <br />
               <span className="text-slate-800 dark:text-slate-200">& Business</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed">
-              Explore artigos sobre tecnologias - dev. & ia&apos;s, marketing & mundo e business & startups.
+            <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+              Explore artigos sobre tecnologias - dev. & IAs, marketing & mundo e business & startups.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
               <Link 
                 href="#posts" 
                 className="group relative inline-flex items-center space-x-2 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105"
@@ -130,7 +133,8 @@ export default function HomePage() {
                 <Link
                   key={post.id}
                   href={`/post/${post.slug}`}
-                  className="group block"
+                  className="group block animate-fade-in-up hover-lift"
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <article className="glass-card rounded-2xl overflow-hidden h-full transition-all duration-300 group-hover:shadow-glow border border-slate-200/20 dark:border-slate-700/20">
                     {/* Image */}
@@ -146,6 +150,7 @@ export default function HomePage() {
                           <BookOpen className="w-12 h-12 text-primary-500/50" />
                         </div>
                       )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
 
                     {/* Content */}

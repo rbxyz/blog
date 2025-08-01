@@ -155,7 +155,7 @@ export default function SpotifyPlaylist({ playlistUrl, className = '' }: Spotify
           <div>
             <p className="text-red-600 dark:text-red-400 font-medium">Erro no Spotify</p>
             <p className="text-red-500 dark:text-red-300 text-sm">{error}</p>
-          </div>
+          </div>    
         </div>
       </div>
     );
