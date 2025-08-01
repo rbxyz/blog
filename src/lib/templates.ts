@@ -211,7 +211,8 @@ class TemplateService {
           description: data.description,
           htmlContent: data.htmlContent,
           cssContent: data.cssContent,
-          variables: data.variables ? JSON.parse(JSON.stringify(data.variables)) : undefined,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+          variables: data.variables ? data.variables as unknown as any : undefined,
           isActive: true,
           isDefault: false,
         },
