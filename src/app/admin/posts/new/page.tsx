@@ -187,7 +187,7 @@ export default function NewPostPage() {
       spotifyPlaylistUrl: formData.spotifyPlaylistUrl || undefined,
       hasAudio: formData.hasAudio,
       published: !schedulingData.isScheduled, // Publicar imediatamente se não agendado
-      scheduledAt: scheduledAt || undefined,
+      scheduledAt: scheduledAt ?? undefined,
     };
 
     void createPostMutation.mutate(postData);

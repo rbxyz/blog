@@ -68,7 +68,7 @@ class QueueService {
                 }
 
                 // Buscar inscritos se não fornecidos
-                let subscribers = subscriberIds.length > 0
+                const subscribers = subscriberIds.length > 0
                     ? await prisma.newsletterSubscriber.findMany({
                         where: { id: { in: subscriberIds }, isActive: true }
                     })

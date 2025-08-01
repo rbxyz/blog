@@ -166,7 +166,7 @@ export default function EditPostPage() {
       spotifyPlaylistUrl: formData.spotifyPlaylistUrl || undefined,
       hasAudio: formData.hasAudio,
       published: formData.published,
-      scheduledAt: formData.scheduledAt || undefined,
+      scheduledAt: formData.scheduledAt ?? undefined,
     });
   };
 
