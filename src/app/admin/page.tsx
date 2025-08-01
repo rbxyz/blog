@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
 import { Plus, Edit, Trash2, Eye, MessageSquare, Users, FileText, TrendingUp, CheckCircle, XCircle, RotateCcw, Mail } from "lucide-react";
 import Link from "next/link";
@@ -32,17 +32,54 @@ export default function AdminPage() {
   // State para newsletter
   const [selectedPostId, setSelectedPostId] = useState<string>("");
   const [smtpFormData, setSmtpFormData] = useState({
-    host: smtpConfig?.host ?? "",
-    port: smtpConfig?.port ?? 587,
-    secure: smtpConfig?.secure ?? false,
-    username: smtpConfig?.username ?? "",
-    password: smtpConfig?.password ?? "",
-    fromEmail: smtpConfig?.fromEmail ?? "",
-    fromName: smtpConfig?.fromName ?? "",
-    isActive: smtpConfig?.isActive ?? false,
+    host: "",
+    port: 587,
+    secure: false,
+    username: "",
+    password: "",
+    fromEmail: "",
+    fromName: "",
+    isActive: false,
   });
 
+  // Atualizar dados do formulário quando smtpConfig for carregado
+  useEffect(() => {
+    if (smtpConfig) {
+      setSmtpFormData({
+        host: smtpConfig.host ?? "",
+        port: smtpConfig.port ?? 587,
+        secure: smtpConfig.secure ?? false,
+        username: smtpConfig.username ?? "",
+        password: smtpConfig.password ?? "",
+        fromEmail: smtpConfig.fromEmail ?? "",
+        fromName: smtpConfig.fromName ?? "",
+        isActive: smtpConfig.isActive ?? false,
+      });
+    }
+  }, [smtpConfig]);
+
   const handleSmtpSubmit = () => {
+    // Validar dados obrigatórios
+    if (!smtpFormData.host || !smtpFormData.port || !smtpFormData.username || 
+        !smtpFormData.password || !smtpFormData.fromEmail || !smtpFormData.fromName) {
+      alert("Por favor, preencha todos os campos obrigatórios");
+      return;
+    }
+
+    // Validar porta
+    if (smtpFormData.port < 1 || smtpFormData.port > 65535) {
+      alert("Porta deve estar entre 1 e 65535");
+      return;
+    }
+
+    // Validar email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(smtpFormData.fromEmail)) {
+      alert("Email do remetente inválido");
+      return;
+    }
+
+    console.log("Enviando dados SMTP:", smtpFormData);
     updateSmtpConfigMutation.mutate(smtpFormData);
   };
 
@@ -264,9 +301,11 @@ export default function AdminPage() {
                       <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
                         post.published 
                           ? "bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400"
+                          : post.scheduledAt
+                          ? "bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
                           : "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400"
                       }`}>
-                        {post.published ? "Publicado" : "Rascunho"}
+                        {post.published ? "Publicado" : post.scheduledAt ? "Agendado" : "Rascunho"}
                       </span>
                       <span className="text-sm text-slate-500 dark:text-slate-400">
                         {post.viewCount ?? 0} views
@@ -339,13 +378,22 @@ export default function AdminPage() {
                           </div>
                         </td>
                         <td className="p-4">
-                          <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
-                            post.published 
-                              ? "bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400"
-                              : "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400"
-                          }`}>
-                            {post.published ? "Publicado" : "Rascunho"}
-                          </span>
+                          <div className="space-y-1">
+                            <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
+                              post.published 
+                                ? "bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400"
+                                : post.scheduledAt
+                                ? "bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                                : "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400"
+                            }`}>
+                              {post.published ? "Publicado" : post.scheduledAt ? "Agendado" : "Rascunho"}
+                            </span>
+                            {post.scheduledAt && (
+                              <p className="text-xs text-slate-500 dark:text-slate-400">
+                                {new Date(post.scheduledAt).toLocaleDateString('pt-BR')} às {new Date(post.scheduledAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            )}
+                          </div>
                         </td>
                         <td className="p-4 text-slate-600 dark:text-slate-400">
                           {post.viewCount ?? 0}
@@ -695,7 +743,20 @@ export default function AdminPage() {
                 
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Email
+                    Usuário/Email
+                  </label>
+                  <input
+                    type="text"
+                    value={smtpFormData.username}
+                    onChange={(e) => setSmtpFormData({ ...smtpFormData, username: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                    placeholder="seu@email.com"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Email do Remetente
                   </label>
                   <input
                     type="email"
@@ -756,13 +817,23 @@ export default function AdminPage() {
                   </label>
                 </div>
                 
-                <div className="md:col-span-2">
+                <div className="md:col-span-2 flex gap-4">
                   <button 
                     onClick={handleSmtpSubmit}
                     disabled={updateSmtpConfigMutation.isPending}
                     className="px-6 py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white rounded-lg font-medium transition-colors"
                   >
                     {updateSmtpConfigMutation.isPending ? "Salvando..." : "Salvar Configuração"}
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      console.log("Dados do formulário SMTP:", smtpFormData);
+                      console.log("Configuração atual:", smtpConfig);
+                    }}
+                    className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors"
+                  >
+                    Debug
                   </button>
                 </div>
               </div>

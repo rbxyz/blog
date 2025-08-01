@@ -142,8 +142,8 @@ export default async function PostPage({ params }: { params: PageParams }) {
                 </div>
               )}
 
-              {/* Spotify Playlist */}
-              {post.spotifyPlaylistUrl && (
+              {/* Spotify Playlist - Apenas quando há podcast */}
+              {post.hasAudio && post.spotifyPlaylistUrl && (
                 <SpotifyPlaylist
                   playlistUrl={post.spotifyPlaylistUrl}
                   className="sticky top-8"

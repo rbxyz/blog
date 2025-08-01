@@ -2,5 +2,8 @@
   "/page": "app/page.js",
   "/_not-found/page": "app/_not-found/page.js",
   "/api/auth/me/route": "app/api/auth/me/route.js",
-  "/api/trpc/[trpc]/route": "app/api/trpc/[trpc]/route.js"
+  "/api/trpc/[trpc]/route": "app/api/trpc/[trpc]/route.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/admin/page": "app/admin/page.js"
 }

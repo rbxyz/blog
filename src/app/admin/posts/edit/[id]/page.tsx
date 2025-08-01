@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { api } from "~/trpc/react";
-import { ArrowLeft, Upload, Eye, EyeOff, Save, FileText, Image, Bold, Italic, Code, Link as LinkIcon, List, ListOrdered, Quote, Hash, Loader2, Music } from "lucide-react";
+import { ArrowLeft, Upload, Eye, EyeOff, Save, FileText, Image, Bold, Italic, Code, Link as LinkIcon, List, ListOrdered, Quote, Hash, Loader2, Music, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
@@ -394,13 +394,25 @@ export default function EditPostPage() {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   URL do Áudio (opcional)
                 </label>
-                <input
-                  type="url"
-                  value={formData.audioUrl}
-                  onChange={(e) => handleInputChange("audioUrl", e.target.value)}
-                  placeholder="https://exemplo.com/audio.mp3"
-                  className="w-full p-3 rounded-xl glass border border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all duration-200"
-                />
+                <div className="flex space-x-2">
+                  <input
+                    type="url"
+                    value={formData.audioUrl}
+                    onChange={(e) => handleInputChange("audioUrl", e.target.value)}
+                    placeholder="https://exemplo.com/audio.mp3"
+                    className="flex-1 p-3 rounded-xl glass border border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all duration-200"
+                  />
+                  {formData.audioUrl && (
+                    <button
+                      type="button"
+                      onClick={() => handleInputChange("audioUrl", "")}
+                      className="px-3 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors"
+                      title="Remover áudio"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   Adicione uma URL de áudio para criar um post de podcast
                 </p>
@@ -411,17 +423,29 @@ export default function EditPostPage() {
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   URL da Playlist do Spotify (opcional)
                 </label>
-                <input
-                  type="url"
-                  value={formData.spotifyPlaylistUrl}
-                  onChange={(e) => handleSpotifyUrlChange(e.target.value)}
-                  placeholder="https://open.spotify.com/playlist/..."
-                  className={`w-full p-3 rounded-xl glass border ${
-                    spotifyUrlError 
-                      ? 'border-red-300 dark:border-red-700' 
-                      : 'border-slate-200/50 dark:border-slate-700/50'
-                  } bg-white/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all duration-200`}
-                />
+                <div className="flex space-x-2">
+                  <input
+                    type="url"
+                    value={formData.spotifyPlaylistUrl}
+                    onChange={(e) => handleSpotifyUrlChange(e.target.value)}
+                    placeholder="https://open.spotify.com/playlist/..."
+                    className={`flex-1 p-3 rounded-xl glass border ${
+                      spotifyUrlError 
+                        ? 'border-red-300 dark:border-red-700' 
+                        : 'border-slate-200/50 dark:border-slate-700/50'
+                    } bg-white/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all duration-200`}
+                  />
+                  {formData.spotifyPlaylistUrl && (
+                    <button
+                      type="button"
+                      onClick={() => handleSpotifyUrlChange('')}
+                      className="px-3 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors"
+                      title="Remover URL do Spotify"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
                 {spotifyUrlError && (
                   <p className="text-xs text-red-500 dark:text-red-400 mt-1">
                     {spotifyUrlError}
@@ -457,25 +481,113 @@ export default function EditPostPage() {
             </label>
             
             <div className="space-y-4">
-              <div>
+              {/* Status atual */}
+              <div className="p-4 rounded-xl border">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Status Atual:</span>
+                  <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
+                    formData.published 
+                      ? "bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400"
+                      : formData.scheduledAt
+                      ? "bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                      : "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400"
+                  }`}>
+                    {formData.published ? "Publicado" : formData.scheduledAt ? "Agendado" : "Rascunho"}
+                  </span>
+                </div>
+                
+                {formData.scheduledAt && (
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Agendado para: {new Date(formData.scheduledAt).toLocaleString('pt-BR')}
+                  </p>
+                )}
+              </div>
+
+              {/* Opções de publicação */}
+              <div className="space-y-3">
                 <label className="flex items-center space-x-2">
                   <input
-                    type="checkbox"
-                    checked={formData.published}
-                    onChange={(e) => handleInputChange("published", e.target.checked.toString())}
+                    type="radio"
+                    name="publishStatus"
+                    checked={formData.published && !formData.scheduledAt}
+                    onChange={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        published: true,
+                        scheduledAt: undefined
+                      }));
+                    }}
                     className="rounded border-slate-300"
                   />
                   <span className="text-sm text-slate-600 dark:text-slate-400">
                     Publicar imediatamente
                   </span>
                 </label>
+
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="publishStatus"
+                    checked={!formData.published && !formData.scheduledAt}
+                    onChange={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        published: false,
+                        scheduledAt: undefined
+                      }));
+                    }}
+                    className="rounded border-slate-300"
+                  />
+                  <span className="text-sm text-slate-600 dark:text-slate-400">
+                    Manter como rascunho
+                  </span>
+                </label>
+
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="publishStatus"
+                    checked={!formData.published && !!formData.scheduledAt}
+                    onChange={() => {
+                      // Manter agendamento se já existir
+                      if (!formData.scheduledAt) {
+                        const tomorrow = new Date();
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        tomorrow.setHours(9, 0, 0, 0);
+                        setFormData(prev => ({
+                          ...prev,
+                          published: false,
+                          scheduledAt: tomorrow
+                        }));
+                      }
+                    }}
+                    className="rounded border-slate-300"
+                  />
+                  <span className="text-sm text-slate-600 dark:text-slate-400">
+                    Agendar publicação
+                  </span>
+                </label>
               </div>
-              
+
+              {/* Agendamento */}
               {!formData.published && (
-                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl">
-                  <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                    <strong>Rascunho:</strong> Este post não será visível publicamente até ser publicado.
-                  </p>
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Data e Hora de Publicação
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={formData.scheduledAt ? new Date(formData.scheduledAt).toISOString().slice(0, 16) : ''}
+                    onChange={(e) => {
+                      const date = e.target.value ? new Date(e.target.value) : undefined;
+                      setFormData(prev => ({
+                        ...prev,
+                        scheduledAt: date
+                      }));
+                    }}
+                    min={new Date().toISOString().slice(0, 16)}
+                    className="w-full p-3 rounded-xl glass border border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/50 transition-all duration-200"
+                  />
                 </div>
               )}
             </div>

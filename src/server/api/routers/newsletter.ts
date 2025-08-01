@@ -263,6 +263,8 @@ export const newsletterRouter = createTRPCRouter({
             })
         )
         .mutation(async ({ ctx, input }) => {
+            console.log("📧 Recebida requisição para atualizar SMTP:", input);
+
             if (ctx.session.role !== "ADMIN") {
                 throw new Error("Acesso negado");
             }
@@ -276,6 +278,8 @@ export const newsletterRouter = createTRPCRouter({
                     });
                 }
 
+                console.log("💾 Salvando configuração SMTP no banco...");
+
                 const config = await prisma.smtpConfig.upsert({
                     where: { id: "default" },
                     update: input,
@@ -285,6 +289,7 @@ export const newsletterRouter = createTRPCRouter({
                     },
                 });
 
+                console.log("✅ Configuração SMTP salva com sucesso:", config);
                 return { success: true, config };
             } catch (error) {
                 console.error("Erro ao atualizar configuração SMTP:", error);

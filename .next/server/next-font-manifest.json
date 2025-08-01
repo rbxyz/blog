@@ -5,6 +5,12 @@
     ],
     "[project]/src/app/_not-found/page": [
       "static/media/Geist_Variable-s.p.781b491f.woff2"
+    ],
+    "[project]/src/app/auth/login/page": [
+      "static/media/Geist_Variable-s.p.781b491f.woff2"
+    ],
+    "[project]/src/app/admin/page": [
+      "static/media/Geist_Variable-s.p.781b491f.woff2"
     ]
   },
   "appUsingSizeAdjust": true,
