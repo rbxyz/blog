@@ -259,6 +259,47 @@ export const postRouter = createTRPCRouter({
     });
   }),
 
+  // Posts paginados para a página inicial
+  getPaginated: publicProcedure
+    .input(z.object({
+      page: z.number().min(1).default(1),
+      limit: z.number().min(1).max(50).default(8),
+    }))
+    .query(async ({ input }) => {
+      const { page, limit } = input;
+      const skip = (page - 1) * limit;
+
+      const [posts, total] = await Promise.all([
+        prisma.post.findMany({
+          where: { published: true },
+          orderBy: { createdAt: "desc" },
+          skip,
+          take: limit,
+          select: {
+            id: true,
+            title: true,
+            content: true,
+            imageUrl: true,
+            slug: true,
+            viewCount: true,
+            createdAt: true,
+          },
+        }),
+        prisma.post.count({
+          where: { published: true },
+        }),
+      ]);
+
+      return {
+        posts,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasMore: page * limit < total,
+      };
+    }),
+
   mostRead: publicProcedure.query(async () => {
     return await prisma.post.findMany({
       where: { published: true }, // 🔥 FILTRO ADICIONADO - apenas posts publicados

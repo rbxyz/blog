@@ -5,18 +5,28 @@ import { trpc } from "~/trpc/react";
 import SearchBy from "./components/SearchBy";
 import NewsletterSignup from "./components/NewsletterSignup";
 import Link from "next/link";
-import { Calendar, Eye, ArrowRight, Sparkles, BookOpen, TrendingUp } from "lucide-react";
+import { Calendar, Eye, ArrowRight, Sparkles, BookOpen, TrendingUp, Loader2 } from "lucide-react";
 import { createExcerpt } from "~/lib/utils";
+import { useState } from "react";
 
 export default function HomePage() {
+  const [currentPage, setCurrentPage] = useState(1);
+  
   const {
-    data: recentPosts,
+    data: paginatedData,
     error,
     isLoading,
-  } = trpc?.post?.recent?.useQuery() ?? {
-    data: [],
-    error: null,
-    isLoading: false,
+  } = trpc.post.getPaginated.useQuery({
+    page: currentPage,
+    limit: 8,
+  });
+
+  const allPosts = paginatedData?.posts ?? [];
+  const hasMore = paginatedData?.hasMore ?? false;
+  const totalPosts = paginatedData?.total ?? 0;
+
+  const loadMore = () => {
+    setCurrentPage(prev => prev + 1);
   };
 
   if (isLoading) {
@@ -49,29 +59,25 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative py-20 px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          {/* Floating elements */}
-          <div className="absolute top-10 left-10 w-20 h-20 rounded-full bg-gradient-to-br from-primary-400/20 to-secondary-400/20 blur-xl animate-float"></div>
-          <div className="absolute top-32 right-20 w-16 h-16 rounded-full bg-gradient-to-br from-accent-400/20 to-primary-400/20 blur-xl animate-float" style={{ animationDelay: '1s' }}></div>
-          
           <div className="text-center relative z-10">
-            <div className="inline-flex items-center space-x-2 glass-card rounded-full px-4 py-2 mb-8 animate-fade-in-up">
+            <div className="inline-flex items-center space-x-2 glass-card rounded-full px-4 py-2 mb-8">
               <Sparkles className="w-4 h-4 text-primary-500" />
               <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
                 Bem-vindo ao futuro do desenvolvimento
               </span>
             </div>
             
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
               <span className="gradient-text">Tech & Marketing</span>
               <br />
               <span className="text-slate-800 dark:text-slate-200">& Business</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed">
               Explore artigos sobre tecnologias - dev. & ia&apos;s, marketing & mundo e business & startups.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link 
                 href="#posts" 
                 className="group relative inline-flex items-center space-x-2 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105"
@@ -85,7 +91,7 @@ export default function HomePage() {
                 <div className="flex items-center space-x-4 text-sm">
                   <div className="flex items-center space-x-1">
                     <BookOpen className="w-4 h-4 text-primary-500" />
-                    <span className="text-slate-600 dark:text-slate-400">{recentPosts?.length ?? 0} artigos</span>
+                    <span className="text-slate-600 dark:text-slate-400">{totalPosts} artigos</span>
                   </div>
                   <div className="w-1 h-1 rounded-full bg-slate-400"></div>
                   <div className="flex items-center space-x-1">
@@ -118,14 +124,13 @@ export default function HomePage() {
             </p>
           </div>
 
-          {recentPosts && recentPosts.length > 0 ? (
+          {allPosts && allPosts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {recentPosts.map((post: Post, index) => (
+              {allPosts.map((post, index) => (
                 <Link
                   key={post.id}
                   href={`/post/${post.slug}`}
-                  className="group block animate-fade-in-up hover-lift"
-                  style={{ animationDelay: `${index * 0.1}s` }}
+                  className="group block"
                 >
                   <article className="glass-card rounded-2xl overflow-hidden h-full transition-all duration-300 group-hover:shadow-glow border border-slate-200/20 dark:border-slate-700/20">
                     {/* Image */}
@@ -141,7 +146,6 @@ export default function HomePage() {
                           <BookOpen className="w-12 h-12 text-primary-500/50" />
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
 
                     {/* Content */}
@@ -179,6 +183,27 @@ export default function HomePage() {
                 </Link>
               ))}
             </div>
+
+            {/* Botão Veja Mais */}
+            {hasMore && (
+              <div className="text-center mt-12">
+                <button
+                  onClick={loadMore}
+                  disabled={isLoading}
+                  className="group relative inline-flex items-center space-x-2 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 shadow-lg group-hover:shadow-glow"></div>
+                  <span className="relative z-10 text-white">
+                    {isLoading ? 'Carregando...' : 'Veja mais posts'}
+                  </span>
+                  {isLoading ? (
+                    <Loader2 className="relative z-10 w-5 h-5 text-white animate-spin" />
+                  ) : (
+                    <ArrowRight className="relative z-10 w-5 h-5 text-white transition-transform group-hover:translate-x-1" />
+                  )}
+                </button>
+              </div>
+            )}
           ) : (
             <div className="text-center py-16">
               <div className="glass-card rounded-2xl p-12 max-w-md mx-auto">
@@ -203,4 +228,4 @@ export default function HomePage() {
       </section>
     </div>
   );
-}
+} 

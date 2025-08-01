@@ -9,12 +9,14 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
+import { useNotifications } from "~/app/components/NotificationModal";
 
 export default function EditPostPage() {
   const router = useRouter();
   const params = useParams();
   const postId = params.id as string;
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { showNotification } = useNotifications();
   
   const [formData, setFormData] = useState({
     title: "",
@@ -42,11 +44,28 @@ export default function EditPostPage() {
   // Mutation para atualizar post
   const updatePostMutation = api.post.update.useMutation({
     onSuccess: () => {
-      router.push(`/admin?tab=posts&success=Post atualizado com sucesso!`);
+      showNotification({
+        type: 'success',
+        title: 'Post atualizado!',
+        message: 'Post atualizado com sucesso.',
+        action: {
+          label: 'Ver no painel',
+          onClick: () => router.push('/admin')
+        }
+      });
+      
+      // Redirecionar após 2 segundos
+      setTimeout(() => {
+        router.push('/admin');
+      }, 2000);
     },
     onError: (error) => {
       console.error("Erro ao atualizar post:", error);
-      alert(`Erro ao atualizar post: ${error.message}`);
+      showNotification({
+        type: 'error',
+        title: 'Erro ao atualizar post',
+        message: error.message,
+      });
     },
   });
 

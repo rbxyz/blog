@@ -281,6 +281,65 @@ export default function AdminPage() {
               </div>
             </div>
 
+            {/* Quick Actions */}
+            <div className="glass-card rounded-2xl p-8">
+              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">
+                Ações Rápidas
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Link
+                  href="/admin/posts/new"
+                  className="group p-4 glass rounded-xl hover:shadow-glow transition-all duration-300 hover:scale-105"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Plus className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                    <div>
+                      <h3 className="font-medium text-slate-800 dark:text-slate-200">
+                        Novo Post
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Criar novo artigo
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link
+                  href="/admin/notifications"
+                  className="group p-4 glass rounded-xl hover:shadow-glow transition-all duration-300 hover:scale-105"
+                >
+                  <div className="flex items-center space-x-3">
+                    <MessageSquare className="w-6 h-6 text-secondary-600 dark:text-secondary-400" />
+                    <div>
+                      <h3 className="font-medium text-slate-800 dark:text-slate-200">
+                        Notificações
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Testar sistema
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+
+                <button
+                  onClick={() => setActiveTab("newsletter")}
+                  className="group p-4 glass rounded-xl hover:shadow-glow transition-all duration-300 hover:scale-105 text-left"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Mail className="w-6 h-6 text-accent-600 dark:text-accent-400" />
+                    <div>
+                      <h3 className="font-medium text-slate-800 dark:text-slate-200">
+                        Newsletter
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Gerenciar emails
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
             {/* Recent Activity */}
             <div className="glass-card rounded-2xl p-8">
               <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">

@@ -9,9 +9,11 @@ import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
 import AudioUpload from "~/app/components/AudioUpload";
+import { useNotifications } from "~/app/components/NotificationModal";
 
 export default function NewPostPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { showNotification } = useNotifications();
   
   const [formData, setFormData] = useState({
     title: "",
@@ -40,14 +42,33 @@ export default function NewPostPage() {
   const createPostMutation = api.post.create.useMutation({
     onSuccess: (data) => {
       console.log("✅ Post criado com sucesso:", data);
-      alert("Post criado com sucesso!");
       
-      // Redirecionar para a página de admin ou do post
-      window.location.href = "/admin";
+      const isScheduled = schedulingData.isScheduled && schedulingData.scheduledDate && schedulingData.scheduledTime;
+      
+      showNotification({
+        type: 'success',
+        title: 'Post criado com sucesso!',
+        message: isScheduled 
+          ? 'Post agendado para publicação. Você será notificado quando for publicado.'
+          : 'Post publicado com sucesso!',
+        action: {
+          label: 'Ver no painel',
+          onClick: () => window.location.href = "/admin"
+        }
+      });
+      
+      // Redirecionar após 2 segundos
+      setTimeout(() => {
+        window.location.href = "/admin";
+      }, 2000);
     },
     onError: (error) => {
       console.error("❌ Erro ao criar post:", error);
-      alert(`Erro ao criar post: ${error.message}`);
+      showNotification({
+        type: 'error',
+        title: 'Erro ao criar post',
+        message: error.message,
+      });
     },
   });
 
@@ -94,7 +115,11 @@ export default function NewPostPage() {
       handleInputChange("imageUrl", imageUrl);
     } catch (error) {
       console.error("Erro no upload:", error);
-      alert("Erro ao fazer upload da imagem");
+      showNotification({
+        type: 'error',
+        title: 'Erro no upload',
+        message: 'Erro ao fazer upload da imagem. Tente novamente.',
+      });
     } finally {
       setIsUploading(false);
     }
@@ -157,7 +182,11 @@ export default function NewPostPage() {
     e.preventDefault();
     
     if (!formData.title.trim() || !formData.content.trim()) {
-      alert("Título e conteúdo são obrigatórios!");
+      showNotification({
+        type: 'warning',
+        title: 'Campos obrigatórios',
+        message: 'Título e conteúdo são obrigatórios!',
+      });
       return;
     }
 
@@ -237,7 +266,11 @@ export default function NewPostPage() {
       }
     } catch (error) {
       console.error("Erro no upload:", error);
-      alert("Erro ao fazer upload da imagem");
+      showNotification({
+        type: 'error',
+        title: 'Erro no upload',
+        message: 'Erro ao fazer upload da imagem. Tente novamente.',
+      });
     } finally {
       setIsUploading(false);
     }
