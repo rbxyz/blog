@@ -1,1 +1,13 @@
-{"pages":{},"app":{"/home/rbxyz/dev/blog/src/app/layout":["static/media/e11418ac562b8ac1-s.p.woff2"]},"appUsingSizeAdjust":true,"pagesUsingSizeAdjust":false}
+{
+  "app": {
+    "[project]/src/app/page": [
+      "static/media/Geist_Variable-s.p.781b491f.woff2"
+    ],
+    "[project]/src/app/_not-found/page": [
+      "static/media/Geist_Variable-s.p.781b491f.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}
