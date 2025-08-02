@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
-import { Plus, Edit, Trash2, Eye, MessageSquare, Users, FileText, TrendingUp, CheckCircle, XCircle, RotateCcw, Mail, BarChart3 } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, MessageSquare, Users, FileText, TrendingUp, CheckCircle, XCircle, RotateCcw, Mail, BarChart3, Tag } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminPage() {
@@ -371,6 +371,23 @@ export default function AdminPage() {
                     </div>
                   </div>
                 </button>
+
+                <Link
+                  href="/admin/tags"
+                  className="group p-4 glass rounded-xl hover:shadow-glow transition-all duration-300 hover:scale-105"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Tag className="w-6 h-6 text-green-600 dark:text-green-400" />
+                    <div>
+                      <h3 className="font-medium text-slate-800 dark:text-slate-200">
+                        Tags
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Gerenciar tags
+                      </p>
+                    </div>
+                  </div>
+                </Link>
               </div>
             </div>
 

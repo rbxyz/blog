@@ -10,15 +10,13 @@ export const postRouter = createTRPCRouter({
       return await prisma.post.findMany({
         where: { published: true }, // 🔥 FILTRO ADICIONADO - apenas posts publicados
         orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          title: true,
-          content: true,
-          imageUrl: true,
-          slug: true,
-          viewCount: true,
-          published: true,
-          createdAt: true,
+        include: {
+          author: true,
+          tags: {
+            include: {
+              tag: true,
+            },
+          },
         },
       });
     } catch (error) {
@@ -57,6 +55,14 @@ export const postRouter = createTRPCRouter({
     try {
       const post = await prisma.post.findUnique({
         where: { slug: input },
+        include: {
+          author: true,
+          tags: {
+            include: {
+              tag: true,
+            },
+          },
+        },
       });
 
       if (!post) throw new Error("Post não encontrado");
@@ -275,14 +281,13 @@ export const postRouter = createTRPCRouter({
           orderBy: { createdAt: "desc" },
           skip,
           take: limit,
-          select: {
-            id: true,
-            title: true,
-            content: true,
-            imageUrl: true,
-            slug: true,
-            viewCount: true,
-            createdAt: true,
+          include: {
+            author: true,
+            tags: {
+              include: {
+                tag: true,
+              },
+            },
           },
         }),
         prisma.post.count({

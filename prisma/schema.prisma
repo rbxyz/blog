@@ -66,8 +66,38 @@ model Post {
   views    PostView[]
   emailLogs NewsletterEmailLog[]
   newsletterQueues NewsletterQueue[]
+  tags     PostTag[]
 
   @@map("posts")
+}
+
+model Tag {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  color       String?  // Cor da tag (hex)
+  viewCount   Int      @default(0) // Contador de visualizações
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  posts PostTag[]
+
+  @@map("tags")
+}
+
+model PostTag {
+  id     String @id @default(uuid())
+  postId String
+  tagId  String
+
+  // Relations
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, tagId]) // Garante que uma tag não seja duplicada em um post
+  @@map("post_tags")
 }
 
 model Comment {
