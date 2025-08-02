@@ -1,9 +1,9 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/api/auth/logout/route": "app/api/auth/logout/route.js",
   "/api/auth/login/route": "app/api/auth/login/route.js",
-  "/api/auth/register/route": "app/api/auth/register/route.js",
+  "/api/auth/logout/route": "app/api/auth/logout/route.js",
   "/api/auth/me/route": "app/api/auth/me/route.js",
+  "/api/auth/register/route": "app/api/auth/register/route.js",
   "/api/newsletter/click/[trackingId]/route": "app/api/newsletter/click/[trackingId]/route.js",
   "/api/newsletter/track/[trackingId]/route": "app/api/newsletter/track/[trackingId]/route.js",
   "/api/posts/[slug]/stats/route": "app/api/posts/[slug]/stats/route.js",
@@ -17,10 +17,10 @@
   "/tag/[slug]/page": "app/tag/[slug]/page.js",
   "/post/[slug]/page": "app/post/[slug]/page.js",
   "/admin/notifications/page": "app/admin/notifications/page.js",
-  "/admin/newsletter/subscribers/page": "app/admin/newsletter/subscribers/page.js",
-  "/admin/metrics/page": "app/admin/metrics/page.js",
-  "/admin/page": "app/admin/page.js",
   "/admin/posts/edit/[id]/page": "app/admin/posts/edit/[id]/page.js",
+  "/admin/tags/page": "app/admin/tags/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/metrics/page": "app/admin/metrics/page.js",
   "/admin/posts/new/page": "app/admin/posts/new/page.js",
-  "/admin/tags/page": "app/admin/tags/page.js"
+  "/admin/newsletter/subscribers/page": "app/admin/newsletter/subscribers/page.js"
 }

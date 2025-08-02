@@ -205,7 +205,7 @@ export const tagRouter = createTRPCRouter({
                 });
             }
 
-            if (post.authorId !== ctx.session.userId && ctx.session.role !== "ADMIN") {
+            if (post.authorId !== ctx.session.id && ctx.session.role !== "ADMIN") {
                 throw new TRPCError({
                     code: "FORBIDDEN",
                     message: "Você não tem permissão para editar este post",
@@ -290,11 +290,7 @@ export const tagRouter = createTRPCRouter({
                     select: { posts: true },
                 },
             },
-            orderBy: {
-                _count: {
-                    posts: "desc",
-                },
-            },
+            orderBy: { viewCount: "desc" },
             take: 10,
         });
 
