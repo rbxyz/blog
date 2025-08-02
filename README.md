@@ -252,9 +252,9 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 ## 👨‍💻 **Autor**
 
 **Ruan Bueno**
-- Website: [ruanbueno.cloud](https://ruanbueno.cloud)
-- Blog: [blog.ruanbueno.cloud](https://blog.ruanbueno.cloud)
-- LinkedIn: [linkedin.com/in/ruanbueno](https://linkedin.com/in/ruanbueno)
+- Website: [ruanbueno.cloud](https://ruan.allpines.com.br)
+- Blog: [blog.ruanbueno.cloud](https://blog.ruan.allpines.com.br)
+- LinkedIn: [linkedin.com/in/ruanbueno](https://linkedin.com/in/rbxyz)
 - GitHub: [@rbxyz](https://github.com/rbxyz)
 
 ---
