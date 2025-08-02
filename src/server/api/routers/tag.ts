@@ -92,7 +92,7 @@ export const tagRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             // Verificar se é admin
-            if (!ctx.session.user || (ctx.session.user as { role?: string }).role !== "ADMIN") {
+            if (ctx.session.role !== "ADMIN") {
                 throw new TRPCError({
                     code: "FORBIDDEN",
                     message: "Apenas administradores podem criar tags",
@@ -140,7 +140,7 @@ export const tagRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             // Verificar se é admin
-            if (!ctx.session.user || (ctx.session.user as { role?: string }).role !== "ADMIN") {
+            if (ctx.session.role !== "ADMIN") {
                 throw new TRPCError({
                     code: "FORBIDDEN",
                     message: "Apenas administradores podem editar tags",
@@ -171,7 +171,7 @@ export const tagRouter = createTRPCRouter({
         .input(z.object({ id: z.string() }))
         .mutation(async ({ ctx, input }) => {
             // Verificar se é admin
-            if (!ctx.session.user || (ctx.session.user as { role?: string }).role !== "ADMIN") {
+            if (ctx.session.role !== "ADMIN") {
                 throw new TRPCError({
                     code: "FORBIDDEN",
                     message: "Apenas administradores podem deletar tags",
@@ -205,7 +205,7 @@ export const tagRouter = createTRPCRouter({
                 });
             }
 
-            if (post.authorId !== (ctx.session.user as { id?: string }).id && (ctx.session.user as { role?: string }).role !== "ADMIN") {
+            if (post.authorId !== ctx.session.userId && ctx.session.role !== "ADMIN") {
                 throw new TRPCError({
                     code: "FORBIDDEN",
                     message: "Você não tem permissão para editar este post",
@@ -263,7 +263,7 @@ export const tagRouter = createTRPCRouter({
     // Métricas de tags
     getMetrics: protectedProcedure.query(async ({ ctx }) => {
         // Verificar se é admin
-        if (!ctx.session.user || (ctx.session.user as { role?: string }).role !== "ADMIN") {
+        if (ctx.session.role !== "ADMIN") {
             throw new TRPCError({
                 code: "FORBIDDEN",
                 message: "Apenas administradores podem ver métricas",
