@@ -16,8 +16,8 @@
   "/page": "app/page.js",
   "/post/[slug]/page": "app/post/[slug]/page.js",
   "/admin/metrics/page": "app/admin/metrics/page.js",
-  "/admin/newsletter/subscribers/page": "app/admin/newsletter/subscribers/page.js",
   "/admin/notifications/page": "app/admin/notifications/page.js",
+  "/admin/newsletter/subscribers/page": "app/admin/newsletter/subscribers/page.js",
   "/admin/page": "app/admin/page.js",
   "/admin/posts/new/page": "app/admin/posts/new/page.js",
   "/admin/posts/edit/[id]/page": "app/admin/posts/edit/[id]/page.js"

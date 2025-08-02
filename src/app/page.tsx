@@ -3,6 +3,7 @@
 import { trpc } from "~/trpc/react";
 import { useState } from "react";
 import Link from "next/link";
+import { Calendar, Eye, ArrowRight, BookOpen, Loader2 } from "lucide-react";
 
 export default function HomePage() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,33 +52,65 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 text-center">
-          Tech & Marketing & Business
-        </h1>
-        
-        <p className="text-lg text-center mb-12">
-          Explore artigos sobre tecnologias - dev. & IAs, marketing & mundo e business & startups.
-        </p>
-        
-        <div className="mb-8 text-center">
-          <span className="text-sm text-slate-600">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            <span className="gradient-text">Tech & Marketing</span>
+            <br />
+            <span className="text-slate-800 dark:text-slate-200">& Business</span>
+          </h1>
+          
+          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-8">
+            Explore artigos sobre tecnologias - dev. & IAs, marketing & mundo e business & startups.
+          </p>
+          
+          <div className="text-sm text-slate-500">
             {totalPosts} artigos disponíveis
-          </span>
+          </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
           {allPosts.map((post) => (
             <Link key={post.id} href={`/post/${post.slug}`} className="group">
-              <div className="glass-card rounded-2xl p-6 h-full transition-all duration-300 group-hover:shadow-glow group-hover:scale-105">
-                <h2 className="font-bold text-lg mb-3 group-hover:text-primary-600 transition-colors">{post.title}</h2>
-                <p className="text-slate-600 text-sm mb-4">
-                  {post.content?.substring(0, 150)}...
-                </p>
-                <div className="text-xs text-slate-500">
-                  {new Date(post.createdAt).toLocaleDateString('pt-BR')}
+              <article className="glass-card rounded-2xl overflow-hidden h-full transition-all duration-300 group-hover:shadow-glow">
+                <div className="relative overflow-hidden">
+                  {post.imageUrl ? (
+                    <img
+                      src={post.imageUrl}
+                      alt={post.title}
+                      className="w-full h-48 object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="w-full h-48 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 flex items-center justify-center">
+                      <BookOpen className="w-12 h-12 text-primary-500/50" />
+                    </div>
+                  )}
                 </div>
-              </div>
+
+                <div className="p-6 flex flex-col h-full">
+                  <h3 className="font-bold text-lg mb-3 group-hover:text-primary-600 transition-colors">
+                    {post.title}
+                  </h3>
+                  
+                  <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 flex-grow">
+                    {post.content?.substring(0, 150)}...
+                  </p>
+                  
+                  <div className="flex items-center justify-between text-xs text-slate-500 pt-4 border-t border-slate-200/20">
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="w-3 h-3" />
+                      <span>{new Date(post.createdAt).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                    
+                    {post.viewCount !== undefined && (
+                      <div className="flex items-center space-x-1">
+                        <Eye className="w-3 h-3" />
+                        <span>{post.viewCount} views</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </article>
             </Link>
           ))}
         </div>
@@ -87,7 +120,7 @@ export default function HomePage() {
             <button
               onClick={loadMore}
               disabled={isLoading}
-              className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50"
+              className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 transition-colors"
             >
               {isLoading ? 'Carregando...' : 'Veja mais posts'}
             </button>

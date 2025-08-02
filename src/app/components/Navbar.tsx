@@ -93,10 +93,10 @@ export default function Navbar() {
             </div>
             <div className="hidden sm:block">
               <h1 className="text-xl font-bold gradient-text">
-                D3v | Ruan
+                Blog Tech & Marketing & Business
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400 -mt-1">
-                Dev. & Tech
+                Powered By Allpines
               </p>
             </div>
           </Link>
