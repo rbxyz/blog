@@ -32,7 +32,7 @@ export default function TagSelector({
   );
 
   const availableTags = searchQuery.length > 0 ? searchResults : allTags ?? [];
-  const selectedTagObjects = availableTags.filter(tag => selectedTags.includes(tag.id));
+  const selectedTagObjects = availableTags?.filter(tag => selectedTags.includes(tag.id)) ?? [];
 
   const handleTagToggle = (tagId: string) => {
     const newSelectedTags = selectedTags.includes(tagId)
@@ -91,7 +91,7 @@ export default function TagSelector({
         />
         
         {/* Dropdown de resultados */}
-        {isOpen && availableTags.length > 0 && (
+        {isOpen && availableTags && availableTags.length > 0 && (
           <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
             {availableTags.map((tag) => (
               <button

@@ -9,8 +9,8 @@ interface TagData {
   id: string;
   name: string;
   slug: string;
-  description?: string;
-  color?: string;
+  description?: string | null;
+  color?: string | null;
   viewCount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -222,10 +222,10 @@ export default function TagsPage() {
               <div className="flex gap-3">
                 <button
                   type="submit"
-                  disabled={createTag.isLoading || updateTag.isLoading}
+                  disabled={createTag.isPending || updateTag.isPending}
                   className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 transition-colors"
                 >
-                  {createTag.isLoading || updateTag.isLoading ? "Salvando..." : "Salvar"}
+                  {createTag.isPending || updateTag.isPending ? "Salvando..." : "Salvar"}
                 </button>
                 <button
                   type="button"
