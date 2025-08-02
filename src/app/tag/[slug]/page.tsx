@@ -5,7 +5,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { Calendar, Eye, ArrowLeft, BookOpen, Loader2, Tag } from "lucide-react";
 import { createExcerpt } from "~/lib/utils";
-import TagDisplay from "~/app/components/TagDisplay";
 
 interface TagPageProps {
   params: {
@@ -69,7 +68,6 @@ export default function TagPage({ params }: TagPageProps) {
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
           <Link
             href="/"
@@ -83,7 +81,7 @@ export default function TagPage({ params }: TagPageProps) {
             <div className="inline-flex items-center gap-2 mb-4">
               <div
                 className="w-6 h-6 rounded-full"
-                style={{ backgroundColor: tag.color || "#3B82F6" }}
+                style={{ backgroundColor: tag.color ?? "#3B82F6" }}
               />
               <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
                 Tag
@@ -94,7 +92,7 @@ export default function TagPage({ params }: TagPageProps) {
               <span 
                 className="gradient-text"
                 style={{ 
-                  background: `linear-gradient(135deg, ${tag.color || "#3B82F6"}, ${tag.color || "#3B82F6"}80)` 
+                  background: `linear-gradient(135deg, ${tag.color ?? "#3B82F6"}, ${tag.color ?? "#3B82F6"}80)` 
                 }}
               >
                 {tag.name}
@@ -120,7 +118,6 @@ export default function TagPage({ params }: TagPageProps) {
           </div>
         </div>
 
-        {/* Posts */}
         {posts && posts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {posts.map((post) => (
@@ -150,14 +147,6 @@ export default function TagPage({ params }: TagPageProps) {
                       {createExcerpt(post.content ?? '', 150)}
                     </p>
                     
-                    {post.tags && post.tags.length > 0 && (
-                      <TagDisplay 
-                        tags={post.tags.map(pt => pt.tag)} 
-                        className="mb-4" 
-                        clickable={true}
-                      />
-                    )}
-                    
                     <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-4 border-t border-slate-200/20 dark:border-slate-700/20">
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-3 h-3" />
@@ -176,26 +165,6 @@ export default function TagPage({ params }: TagPageProps) {
               </Link>
             ))}
           </div>
-
-          {hasMore && (
-            <div className="text-center mt-12">
-              <button
-                onClick={loadMore}
-                disabled={isLoading}
-                className="group relative inline-flex items-center space-x-2 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 shadow-lg group-hover:shadow-glow"></div>
-                <span className="relative z-10 text-white">
-                  {isLoading ? 'Carregando...' : 'Veja mais posts'}
-                </span>
-                {isLoading ? (
-                  <Loader2 className="relative z-10 w-5 h-5 text-white animate-spin" />
-                ) : (
-                  <Tag className="relative z-10 w-5 h-5 text-white" />
-                )}
-              </button>
-            </div>
-          )}
         ) : (
           <div className="text-center py-16">
             <div className="glass-card rounded-2xl p-12 max-w-md mx-auto">
@@ -204,7 +173,7 @@ export default function TagPage({ params }: TagPageProps) {
                 Nenhum post encontrado
               </h3>
               <p className="text-slate-500 dark:text-slate-500 mb-6">
-                Ainda não há posts com a tag "{tag.name}".
+                Ainda não há posts com a tag &quot;{tag.name}&quot;.
               </p>
               <Link
                 href="/"
@@ -214,6 +183,26 @@ export default function TagPage({ params }: TagPageProps) {
                 Ver todos os posts
               </Link>
             </div>
+          </div>
+        )}
+
+        {hasMore && (
+          <div className="text-center mt-12">
+            <button
+              onClick={loadMore}
+              disabled={isLoading}
+              className="group relative inline-flex items-center space-x-2 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 shadow-lg group-hover:shadow-glow"></div>
+              <span className="relative z-10 text-white">
+                {isLoading ? 'Carregando...' : 'Veja mais posts'}
+              </span>
+              {isLoading ? (
+                <Loader2 className="relative z-10 w-5 h-5 text-white animate-spin" />
+              ) : (
+                <Tag className="relative z-10 w-5 h-5 text-white" />
+              )}
+            </button>
           </div>
         )}
       </div>

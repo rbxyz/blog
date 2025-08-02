@@ -4,7 +4,6 @@ import { trpc } from "~/trpc/react";
 import SearchBy from "./components/SearchBy";
 import NewsletterSignup from "./components/NewsletterSignup";
 import PopularTags from "./components/PopularTags";
-import TagDisplay from "./components/TagDisplay";
 import Link from "next/link";
 import { Calendar, Eye, ArrowRight, Sparkles, BookOpen, TrendingUp, Loader2, Flame } from "lucide-react";
 import { createExcerpt } from "~/lib/utils";
@@ -173,26 +172,6 @@ export default function HomePage() {
                 </Link>
               ))}
             </div>
-
-            {hasMore && (
-              <div className="text-center mt-12">
-                <button
-                  onClick={loadMore}
-                  disabled={isLoading}
-                  className="group relative inline-flex items-center space-x-2 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 shadow-lg group-hover:shadow-glow"></div>
-                  <span className="relative z-10 text-white">
-                    {isLoading ? 'Carregando...' : 'Veja mais posts'}
-                  </span>
-                  {isLoading ? (
-                    <Loader2 className="relative z-10 w-5 h-5 text-white animate-spin" />
-                  ) : (
-                    <ArrowRight className="relative z-10 w-5 h-5 text-white transition-transform group-hover:translate-x-1" />
-                  )}
-                </button>
-              </div>
-            )}
           ) : (
             <div className="text-center py-16">
               <div className="glass-card rounded-2xl p-12 max-w-md mx-auto">
@@ -204,6 +183,26 @@ export default function HomePage() {
                   Os primeiros artigos incríveis estão chegando em breve!
                 </p>
               </div>
+            </div>
+          )}
+
+          {hasMore && (
+            <div className="text-center mt-12">
+              <button
+                onClick={loadMore}
+                disabled={isLoading}
+                className="group relative inline-flex items-center space-x-2 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 shadow-lg group-hover:shadow-glow"></div>
+                <span className="relative z-10 text-white">
+                  {isLoading ? 'Carregando...' : 'Veja mais posts'}
+                </span>
+                {isLoading ? (
+                  <Loader2 className="relative z-10 w-5 h-5 text-white animate-spin" />
+                ) : (
+                  <ArrowRight className="relative z-10 w-5 h-5 text-white transition-transform group-hover:translate-x-1" />
+                )}
+              </button>
             </div>
           )}
         </div>

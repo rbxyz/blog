@@ -5,10 +5,21 @@ import { useState } from "react";
 import { useNotifications } from "~/app/components/NotificationModal";
 import { Tag, Plus, Edit, Trash2, Eye, TrendingUp } from "lucide-react";
 
+interface TagData {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  color?: string;
+  viewCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export default function TagsPage() {
   const { showNotification } = useNotifications();
   const [isCreating, setIsCreating] = useState(false);
-  const [editingTag, setEditingTag] = useState<any>(null);
+  const [editingTag, setEditingTag] = useState<TagData | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -47,12 +58,13 @@ export default function TagsPage() {
       
       setFormData({ name: "", description: "", color: "#3B82F6" });
       setIsCreating(false);
-      refetch();
-    } catch (error: any) {
+      void refetch();
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Ocorreu um erro ao salvar a tag.";
       showNotification({
         type: "error",
         title: "Erro!",
-        message: error.message || "Ocorreu um erro ao salvar a tag.",
+        message: errorMessage,
       });
     }
   };
@@ -67,22 +79,23 @@ export default function TagsPage() {
         title: "Tag deletada!",
         message: "A tag foi removida com sucesso.",
       });
-      refetch();
-    } catch (error: any) {
+      void refetch();
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Ocorreu um erro ao deletar a tag.";
       showNotification({
         type: "error",
         title: "Erro!",
-        message: error.message || "Ocorreu um erro ao deletar a tag.",
+        message: errorMessage,
       });
     }
   };
 
-  const handleEdit = (tag: any) => {
+  const handleEdit = (tag: TagData) => {
     setEditingTag(tag);
     setFormData({
       name: tag.name,
-      description: tag.description || "",
-      color: tag.color || "#3B82F6",
+      description: tag.description ?? "",
+      color: tag.color ?? "#3B82F6",
     });
     setIsCreating(true);
   };
@@ -124,7 +137,7 @@ export default function TagsPage() {
                 <div>
                   <p className="text-sm text-slate-600 dark:text-slate-400">Mais Visualizada</p>
                   <p className="text-lg font-bold text-slate-800 dark:text-slate-200">
-                    {metrics.popularTags[0]?.name || "N/A"}
+                    {metrics.popularTags[0]?.name ?? "N/A"}
                   </p>
                 </div>
               </div>
@@ -138,7 +151,7 @@ export default function TagsPage() {
                 <div>
                   <p className="text-sm text-slate-600 dark:text-slate-400">Mais Usada</p>
                   <p className="text-lg font-bold text-slate-800 dark:text-slate-200">
-                    {metrics.tagsWithPostCount[0]?.name || "N/A"}
+                    {metrics.tagsWithPostCount[0]?.name ?? "N/A"}
                   </p>
                 </div>
               </div>
@@ -238,7 +251,7 @@ export default function TagsPage() {
 
           {tags && tags.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {tags.map((tag) => (
+              {tags?.map((tag) => (
                 <div
                   key={tag.id}
                   className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg hover:shadow-md transition-shadow"
@@ -247,7 +260,7 @@ export default function TagsPage() {
                     <div className="flex items-center gap-2">
                       <div
                         className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: tag.color || "#3B82F6" }}
+                        style={{ backgroundColor: tag.color ?? "#3B82F6" }}
                       />
                       <span className="font-medium text-slate-800 dark:text-slate-200">
                         {tag.name}
@@ -255,13 +268,21 @@ export default function TagsPage() {
                     </div>
                     <div className="flex gap-1">
                       <button
-                        onClick={() => handleEdit(tag)}
+                        onClick={() => {
+                          if (tag && typeof tag === 'object' && 'id' in tag) {
+                            handleEdit(tag);
+                          }
+                        }}
                         className="p-1 text-slate-500 hover:text-primary-500 transition-colors"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(tag.id)}
+                        onClick={() => {
+                          if (tag && typeof tag === 'object' && 'id' in tag) {
+                            void handleDelete(tag.id);
+                          }
+                        }}
                         className="p-1 text-slate-500 hover:text-red-500 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />

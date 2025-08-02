@@ -92,7 +92,7 @@ export const tagRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             // Verificar se é admin
-            if (ctx.session.user.role !== "ADMIN") {
+            if (!ctx.session.user || (ctx.session.user as { role?: string }).role !== "ADMIN") {
                 throw new TRPCError({
                     code: "FORBIDDEN",
                     message: "Apenas administradores podem criar tags",
@@ -140,14 +140,14 @@ export const tagRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             // Verificar se é admin
-            if (ctx.session.user.role !== "ADMIN") {
+            if (!ctx.session.user || (ctx.session.user as { role?: string }).role !== "ADMIN") {
                 throw new TRPCError({
                     code: "FORBIDDEN",
                     message: "Apenas administradores podem editar tags",
                 });
             }
 
-            const updateData: any = {};
+            const updateData: Record<string, unknown> = {};
             if (input.name) {
                 updateData.name = input.name;
                 updateData.slug = input.name
@@ -171,7 +171,7 @@ export const tagRouter = createTRPCRouter({
         .input(z.object({ id: z.string() }))
         .mutation(async ({ ctx, input }) => {
             // Verificar se é admin
-            if (ctx.session.user.role !== "ADMIN") {
+            if (!ctx.session.user || (ctx.session.user as { role?: string }).role !== "ADMIN") {
                 throw new TRPCError({
                     code: "FORBIDDEN",
                     message: "Apenas administradores podem deletar tags",
@@ -205,7 +205,7 @@ export const tagRouter = createTRPCRouter({
                 });
             }
 
-            if (post.authorId !== ctx.session.user.id && ctx.session.user.role !== "ADMIN") {
+            if (post.authorId !== (ctx.session.user as { id?: string }).id && (ctx.session.user as { role?: string }).role !== "ADMIN") {
                 throw new TRPCError({
                     code: "FORBIDDEN",
                     message: "Você não tem permissão para editar este post",
@@ -263,7 +263,7 @@ export const tagRouter = createTRPCRouter({
     // Métricas de tags
     getMetrics: protectedProcedure.query(async ({ ctx }) => {
         // Verificar se é admin
-        if (ctx.session.user.role !== "ADMIN") {
+        if (!ctx.session.user || (ctx.session.user as { role?: string }).role !== "ADMIN") {
             throw new TRPCError({
                 code: "FORBIDDEN",
                 message: "Apenas administradores podem ver métricas",

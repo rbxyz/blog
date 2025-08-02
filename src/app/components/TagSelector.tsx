@@ -31,7 +31,7 @@ export default function TagSelector({
     { enabled: searchQuery.length > 0 }
   );
 
-  const availableTags = searchQuery.length > 0 ? searchResults : allTags || [];
+  const availableTags = searchQuery.length > 0 ? searchResults : allTags ?? [];
   const selectedTagObjects = availableTags.filter(tag => selectedTags.includes(tag.id));
 
   const handleTagToggle = (tagId: string) => {
@@ -60,10 +60,10 @@ export default function TagSelector({
             <span
               key={tag.id}
               className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full transition-colors"
-              style={{
-                backgroundColor: `${tag.color || "#3B82F6"}20`,
-                color: tag.color || "#3B82F6",
-              }}
+                              style={{
+                  backgroundColor: `${tag.color ?? "#3B82F6"}20`,
+                  color: tag.color ?? "#3B82F6",
+                }}
             >
               <Tag className="w-3 h-3" />
               {tag.name}
@@ -110,7 +110,7 @@ export default function TagSelector({
               >
                 <Tag 
                   className="w-4 h-4" 
-                  style={{ color: tag.color || "#3B82F6" }}
+                  style={{ color: tag.color ?? "#3B82F6" }}
                 />
                 <span className="flex-1">{tag.name}</span>
                 {selectedTags.includes(tag.id) && (

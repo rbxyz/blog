@@ -30,9 +30,9 @@ export default function TagDisplay({
   return (
     <div className={`flex flex-wrap gap-2 ${className}`}>
       {tags.map((tag) => {
-        const tagColor = tag.color || "#3B82F6";
+        const tagColor = tag.color ?? "#3B82F6";
         const backgroundColor = `${tagColor}20`;
-        const textColor = tag.color || "#3B82F6";
+        const textColor = tag.color ?? "#3B82F6";
 
         const tagElement = (
           <span

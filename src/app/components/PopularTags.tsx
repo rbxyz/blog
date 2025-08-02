@@ -47,8 +47,8 @@ export default function PopularTags({ limit = 12, className = "" }: PopularTagsP
             href={`/tag/${tag.slug}`}
             className="group inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-full transition-all duration-200 hover:scale-105"
             style={{
-              backgroundColor: `${tag.color || "#3B82F6"}15`,
-              color: tag.color || "#3B82F6",
+              backgroundColor: `${tag.color ?? "#3B82F6"}15`,
+              color: tag.color ?? "#3B82F6",
             }}
           >
             <Tag className="w-4 h-4" />
