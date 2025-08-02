@@ -1,28 +1,37 @@
 "use client";
 
 import { trpc } from "~/trpc/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Calendar, Eye, ArrowLeft, BookOpen, Loader2, Tag } from "lucide-react";
 import { createExcerpt } from "~/lib/utils";
 
 interface TagPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default function TagPage({ params }: TagPageProps) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [slug, setSlug] = useState<string>("");
+  
+  useEffect(() => {
+    void params.then((resolvedParams) => {
+      setSlug(resolvedParams.slug);
+    });
+  }, [params]);
   
   const {
     data: tagData,
     error,
     isLoading,
   } = trpc.tag.getPostsByTag.useQuery({
-    tagSlug: params.slug,
+    tagSlug: slug,
     page: currentPage,
     limit: 8,
+  }, {
+    enabled: !!slug, // Só executa a query quando o slug estiver disponível
   });
 
   const loadMore = () => {
