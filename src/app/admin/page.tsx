@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
-import { Plus, Edit, Trash2, Eye, MessageSquare, Users, FileText, TrendingUp, CheckCircle, XCircle, RotateCcw, Mail } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, MessageSquare, Users, FileText, TrendingUp, CheckCircle, XCircle, RotateCcw, Mail, BarChart3 } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminPage() {
@@ -316,6 +316,40 @@ export default function AdminPage() {
                       </h3>
                       <p className="text-sm text-slate-500 dark:text-slate-400">
                         Testar sistema
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link
+                  href="/admin/metrics"
+                  className="group p-4 glass rounded-xl hover:shadow-glow transition-all duration-300 hover:scale-105"
+                >
+                  <div className="flex items-center space-x-3">
+                    <BarChart3 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    <div>
+                      <h3 className="font-medium text-slate-800 dark:text-slate-200">
+                        Métricas
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        KPIs e análises
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link
+                  href="/admin/newsletter/subscribers"
+                  className="group p-4 glass rounded-xl hover:shadow-glow transition-all duration-300 hover:scale-105"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                    <div>
+                      <h3 className="font-medium text-slate-800 dark:text-slate-200">
+                        Inscritos
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Lista de emails
                       </p>
                     </div>
                   </div>

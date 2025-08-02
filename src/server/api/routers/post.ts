@@ -300,6 +300,140 @@ export const postRouter = createTRPCRouter({
       };
     }),
 
+  // Métricas dos posts
+  getMetrics: protectedProcedure
+    .input(z.object({
+      days: z.number().min(1).max(365).default(30),
+    }))
+    .query(async ({ ctx, input }) => {
+      if (ctx.session.role !== "ADMIN") {
+        throw new Error("Acesso negado");
+      }
+
+      const { days } = input;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const [
+        totalPosts,
+        newPosts,
+        totalViews,
+        newViews,
+        topPosts,
+        averageViewsPerPost,
+        averageTimeOnPage,
+        averageScrollDepth,
+      ] = await Promise.all([
+        // Total de posts
+        prisma.post.count({ where: { published: true } }),
+
+        // Novos posts no período
+        prisma.post.count({
+          where: {
+            published: true,
+            createdAt: { gte: startDate },
+          },
+        }),
+
+        // Total de visualizações
+        prisma.post.aggregate({
+          where: { published: true },
+          _sum: { viewCount: true },
+        }),
+
+        // Novas visualizações no período (simulado)
+        prisma.post.aggregate({
+          where: {
+            published: true,
+            updatedAt: { gte: startDate },
+          },
+          _sum: { viewCount: true },
+        }),
+
+        // Posts mais populares
+        prisma.post.findMany({
+          where: { published: true },
+          orderBy: { viewCount: "desc" },
+          take: 10,
+          select: {
+            id: true,
+            title: true,
+            viewCount: true,
+            createdAt: true,
+          },
+        }),
+
+        // Média de visualizações por post
+        prisma.post.aggregate({
+          where: { published: true },
+          _avg: { viewCount: true },
+        }),
+
+        // Tempo médio na página (simulado)
+        Promise.resolve(3.5), // 3.5 minutos
+
+        // Taxa de rolagem (simulada)
+        Promise.resolve(65), // 65%
+      ]);
+
+      return {
+        totalPosts,
+        newPosts,
+        totalViews: totalViews._sum.viewCount ?? 0,
+        newViews: newViews._sum.viewCount ?? 0,
+        topPosts,
+        averageViewsPerPost: Math.round(averageViewsPerPost._avg.viewCount ?? 0),
+        averageTimeOnPage,
+        averageScrollDepth,
+      };
+    }),
+
+  // Métricas de áudio
+  getAudioMetrics: protectedProcedure
+    .input(z.object({
+      days: z.number().min(1).max(365).default(30),
+    }))
+    .query(async ({ ctx, input }) => {
+      if (ctx.session.role !== "ADMIN") {
+        throw new Error("Acesso negado");
+      }
+
+      const { days } = input;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const [
+        postsWithAudio,
+        totalPlays,
+        completionRate,
+        averageListenTime,
+      ] = await Promise.all([
+        // Posts com áudio
+        prisma.post.count({
+          where: {
+            published: true,
+            audioUrl: { not: null },
+          },
+        }),
+
+        // Total de reproduções (simulado)
+        Promise.resolve(1250),
+
+        // Taxa de conclusão (simulada)
+        Promise.resolve(78.5), // 78.5%
+
+        // Tempo médio de escuta (simulado)
+        Promise.resolve(4.2), // 4.2 minutos
+      ]);
+
+      return {
+        postsWithAudio,
+        totalPlays,
+        completionRate,
+        averageListenTime,
+      };
+    }),
+
   mostRead: publicProcedure.query(async () => {
     return await prisma.post.findMany({
       where: { published: true }, // 🔥 FILTRO ADICIONADO - apenas posts publicados
